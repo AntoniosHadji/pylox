@@ -90,6 +90,8 @@ class Scanner:
         else:
             if self.isDigit(c):
                 self.number()
+            elif self.isAlpha(c):
+                self.identifier()
             else:
                 errors.error(self.line, "Unexpected Character")
 

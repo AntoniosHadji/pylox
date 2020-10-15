@@ -7,11 +7,10 @@ hadError = False
 
 
 def runFile(name: str):
-    print("exec file")
+    print(f"exec file: {name}")
     with open(name, "r") as f:
         lines = f.read()
 
-    print(type(lines))
     run(lines)
     if hadError:
         sys.exit(65)
@@ -33,9 +32,6 @@ def runPrompt():
 
 
 def run(line: str):
-    print("exec code")
-    print(line)
-
     scanner = Scanner(line)
     tokens: list = scanner.scanTokens()
     for t in tokens:
