@@ -1,6 +1,9 @@
 import os
 import sys
+from parser import Parser
 
+from astprinter import ASTPrinter
+from expr import Expr
 from scanner import Scanner
 
 hadError = False
@@ -20,7 +23,7 @@ def runPrompt():
     global hadError
     print("start prompt")
     while True:
-        sys.stdout.write("> ")
+        sys.stdout.write("\n> ")
         try:
             line = input()
         except EOFError:
@@ -36,6 +39,15 @@ def run(line: str):
     tokens: list = scanner.scanTokens()
     for t in tokens:
         print(t)
+
+    parser: Parser = Parser(tokens)
+    expression: Expr = parser.parse()
+
+    # // Stop if there was a syntax error.
+    if hadError:
+        return
+
+    sys.stdout.write(ASTPrinter().pprint(expression))
 
 
 if __name__ == "__main__":
