@@ -1,4 +1,5 @@
-import errors
+from typing import Callable, List
+
 from token_class import Token
 from token_type import TokenType
 
@@ -23,12 +24,13 @@ class Scanner:
         "while": TokenType.WHILE,
     }
 
-    def __init__(self, source):
+    def __init__(self, source, error_function: Callable):
         self.source = source
-        self.tokens = list()
+        self.tokens: List[Token] = list()
         self.start = 0
         self.current = 0
         self.line = 1
+        self.error = error_function
 
     def scanTokens(self):
         while not self.isAtEnd():
@@ -93,7 +95,7 @@ class Scanner:
             elif self.isAlpha(c):
                 self.identifier()
             else:
-                errors.error(self.line, "Unexpected Character")
+                self.error(self.line, "Unexpected Character")
 
     def identifier(self):
         while self.isAlphaNumeric(self.peek()):
@@ -130,7 +132,7 @@ class Scanner:
                 self.advance()
 
         if self.isAtEnd():
-            errors.error(self.line, "Unterminated string.")
+            self.error(self.line, "Unterminated string.")
             return
 
         # // The closing "
@@ -172,6 +174,6 @@ class Scanner:
         self.current += 1
         return self.source[self.current - 1]
 
-    def addToken(self, ttype: TokenType, literal: dict = {}):
+    def addToken(self, ttype: TokenType, literal: object = None):
         text = self.source[self.start : self.current]
         self.tokens.append(Token(ttype, text, literal, self.line))

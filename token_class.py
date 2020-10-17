@@ -5,10 +5,10 @@ from token_type import TokenType
 class Token:
     ttype = None
     lexeme = None
-    literal = {}
-    line = 0
+    literal: object
+    line: int = 0
 
-    def __init__(self, t: TokenType, lexeme: str, literal: dict, line: int):
+    def __init__(self, t: TokenType, lexeme: str, literal: object, line: int):
         self.ttype = t
         self.lexeme = lexeme
         self.literal = literal

@@ -1,6 +1,5 @@
-from typing import List
+from typing import Callable, List, Union
 
-import errors
 from expr import Binary, Expr, Grouping, Literal, Unary
 from token_class import Token
 from token_type import TokenType
@@ -9,13 +8,14 @@ from token_type import TokenType
 class Parser:
     current: int = 0
 
-    class ParserError(Exception):
+    class ParserError(BaseException):
         pass
 
-    def __init__(self, tokens: List[Token]):
+    def __init__(self, tokens: List[Token], error_function: Callable):
         self.tokens = tokens
+        self.errorToken = error_function
 
-    def parse(self) -> Expr:
+    def parse(self) -> Union[Expr, None]:
         try:
             return self.expression()
         except self.ParserError:
@@ -133,7 +133,7 @@ class Parser:
         return self.tokens[self.current - 1]
 
     def error(self, token: Token, message: str) -> ParserError:
-        errors.errorToken(token, message)
+        self.errorToken(token, message)
         return self.ParserError()
 
     def synchronize(self) -> None:
