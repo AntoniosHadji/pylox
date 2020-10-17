@@ -8,13 +8,15 @@ import black
 
 def main():
     print(sys.argv)
-    # remove scriptname
-    sys.argv.pop(0)
 
-    if len(sys.argv) != 1:
-        sys.stderr.write("usage: generate_ast <output directory>\n")
-        sys.exit(64)
-    outputDir: str = sys.argv.pop(0)
+    if len(sys.argv) == 2:
+        outputDir: str = sys.argv.pop(1)
+    else:
+        # use current directory if not given
+        p = pathlib.Path(__file__).resolve().parent
+        remove = sys.argv[0].rsplit("/", maxsplit=1)[0]
+        outputDir: str = str(p).replace(remove, "")
+
     defineAst(
         outputDir,
         "Expr",
@@ -30,10 +32,15 @@ def main():
 def defineAst(outputDir: str, baseName: str, types: List[str]):
     path: str = outputDir + "/" + baseName.lower() + ".py"
     with open(path, "w") as f:
+        # imports
         f.write("# AUTO-GENERATED: do not edit.  look at ./tool/generate_ast.py\n")
         f.write("from dataclasses import dataclass\n")
-        f.write("from abc import ABC, abstractmethod\n\n")
-        f.write("from token_class import Token\n\n\n")
+        f.write("from abc import ABC, abstractmethod\n")
+        f.write("\n")
+        f.write("from token_class import Token\n")
+        f.write("\n\n")
+
+        # Visitor class
         f.write("class Visitor(ABC):\n")
         for t in types:
             f.write("    @abstractmethod\n")
@@ -41,10 +48,13 @@ def defineAst(outputDir: str, baseName: str, types: List[str]):
             f.write(f"    def visit_{className}{baseName}(self):\n")
             f.write("        pass\n")
         f.write("\n\n")
+
+        # base class for AST classes
         f.write(f"class {baseName}(ABC):\n")
         f.write("    @abstractmethod\n")
         f.write("    def accept(self, visitor):\n")
-        f.write("        pass\n\n\n")
+        f.write("        pass\n")
+        f.write("\n\n")
 
         # The AST classes.
         for t in types:
@@ -61,10 +71,11 @@ def defineType(writer: io.TextIOWrapper, baseName: str, className: str, fieldLis
     fields: List[str] = fieldList.split(", ")
     for field in fields:
         name: str = field.split(" ")[1]
-        writer.write("    " + name + ": " + field.split(" ")[0] + "\n")
+        field_type: str = field.split(" ")[0]
+        writer.write(f"    {name}: {field_type}\n")
     writer.write("\n")
-    writer.write("    " + "def accept(self, visitor):\n")
-    writer.write("    " + f"    return visitor.visit_{className}{baseName}(self)\n")
+    writer.write("    def accept(self, visitor):\n")
+    writer.write(f"        return visitor.visit_{className}{baseName}(self)\n")
     writer.write("\n\n")
 
 
