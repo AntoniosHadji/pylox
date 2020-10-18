@@ -4,11 +4,13 @@ from typing import Union
 
 from astprinter import ASTPrinter
 from expr import Expr
+from interpreter import Interpreter, LoxRuntimeError
 from scanner import Scanner
 from token_class import Token
 from token_type import TokenType
 
 hadError: bool = False
+hadRuntimeError: bool = False
 
 
 def runFile(name: str):
@@ -19,6 +21,8 @@ def runFile(name: str):
     run(lines)
     if hadError:
         sys.exit(65)
+    if hadRuntimeError:
+        sys.exit(70)
 
 
 def runPrompt():
@@ -39,9 +43,6 @@ def runPrompt():
 def run(line: str):
     scanner = Scanner(line, error_scan)
     tokens: list = scanner.scanTokens()
-    for t in tokens:
-        print(t)
-
     parser: Parser = Parser(tokens, error_parse)
     expression: Union[Expr, None] = parser.parse()
 
@@ -49,7 +50,10 @@ def run(line: str):
     if hadError:
         return
 
+    for t in tokens:
+        print(t)
     sys.stdout.write(ASTPrinter().pprint(expression))
+    Interpreter(runtimeError).interpret(expression)
 
 
 def error_scan(line: int, message: str) -> None:
@@ -61,6 +65,12 @@ def error_parse(token: Token, message: str) -> None:
         report(token.line, " at end", message)
     else:
         report(token.line, f" at '{token.lexeme}'", message)
+
+
+def runtimeError(error: LoxRuntimeError):
+    sys.stderr.write(f"{error.message}\n[line {error.token.line}]")
+    global hadRuntimeError
+    hadRuntimeError = True
 
 
 def report(line: int, where: str, message: str):
