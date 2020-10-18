@@ -1,7 +1,6 @@
-import io
 import pathlib
 import sys
-from typing import List
+from typing import List, TextIO
 
 import black
 
@@ -31,6 +30,8 @@ def main():
 
 def defineAst(outputDir: str, baseName: str, types: List[str]):
     path: str = outputDir + "/" + baseName.lower() + ".py"
+    className: str
+
     with open(path, "w") as f:
         # imports
         f.write("# AUTO-GENERATED: do not edit.  look at ./tool/generate_ast.py\n")
@@ -44,7 +45,7 @@ def defineAst(outputDir: str, baseName: str, types: List[str]):
         f.write("class Visitor(ABC):\n")
         for t in types:
             f.write("    @abstractmethod\n")
-            className: str = t.split(":")[0].strip()
+            className = t.split(":")[0].strip()
             f.write(f"    def visit_{className}{baseName}(self):\n")
             f.write("        pass\n")
         f.write("\n\n")
@@ -58,12 +59,12 @@ def defineAst(outputDir: str, baseName: str, types: List[str]):
 
         # The AST classes.
         for t in types:
-            className: str = t.split(":")[0].strip()
+            className = t.split(":")[0].strip()
             fields: str = t.split(":")[1].strip()
             defineType(f, baseName, className, fields)
 
 
-def defineType(writer: io.TextIOWrapper, baseName: str, className: str, fieldList: str):
+def defineType(writer: TextIO, baseName: str, className: str, fieldList: str):
     writer.write("@dataclass\n")
     writer.write("class " + className + "(" + baseName + "):\n")
 

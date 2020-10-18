@@ -1,11 +1,12 @@
 import sys
+# from typing import Optional
 
 from expr import Binary, Expr, Grouping, Literal, Unary, Visitor
 from token_class import Token
 from token_type import TokenType
 
 
-class LoxRuntimeError(Exception):
+class LoxRuntimeError(RuntimeError):
     def __init__(self, token: Token, message: str):
         super().__init__()
         self.token = token

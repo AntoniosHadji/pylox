@@ -33,6 +33,7 @@ def runPrompt():
         try:
             line = input()
         except EOFError:
+            # CTRL-D
             break
         if line == "":
             break
@@ -68,7 +69,11 @@ def error_parse(token: Token, message: str) -> None:
 
 
 def runtimeError(error: LoxRuntimeError):
-    sys.stderr.write(f"{error.message}\n[line {error.token.line}]")
+    sys.stderr.write(f"{error}\n")
+    if all([hasattr(error, "message"), hasattr(error, "token")]):
+        if hasattr(error.token, "line"):
+            sys.stderr.write(f"{error.message}\n[line {error.token.line}]")
+
     global hadRuntimeError
     hadRuntimeError = True
 

@@ -3,8 +3,8 @@ from token_type import TokenType
 
 # TODO: this is a good candidate for namedtuple
 class Token:
-    ttype = None
-    lexeme = None
+    ttype: TokenType
+    lexeme: str
     literal: object
     line: int = 0
 
