@@ -27,7 +27,7 @@ def runFile(name: str):
 
 def runPrompt():
     global hadError
-    print("start prompt")
+    print("start lox prompt:")
     while True:
         sys.stdout.write("\n> ")
         try:
@@ -42,7 +42,7 @@ def runPrompt():
 
 
 def run(line: str):
-    scanner = Scanner(line, error_scan)
+    scanner: Scanner = Scanner(line, error_scan)
     tokens: list = scanner.scanTokens()
     parser: Parser = Parser(tokens, error_parse)
     expression: Union[Expr, None] = parser.parse()
@@ -87,7 +87,8 @@ def report(line: int, where: str, message: str):
 if __name__ == "__main__":
 
     args = sys.argv
-    print(args.pop(0))
+    # remove script name
+    args.pop(0)
     if len(args) > 1:
         sys.stdout.write("Usage: jlox [script]\n")
         sys.exit(64)

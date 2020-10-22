@@ -1,5 +1,5 @@
 import sys
-# from typing import Optional
+from typing import Optional, SupportsFloat
 
 from expr import Binary, Expr, Grouping, Literal, Unary, Visitor
 from token_class import Token
@@ -17,7 +17,7 @@ class Interpreter(Visitor):
     def __init__(self, error_handler):
         self.eh = error_handler
 
-    def interpret(self, expression: Expr):
+    def interpret(self, expression: Optional[Expr]):
         try:
             value: object = self.evaluate(expression)
             sys.stdout.write(f"\n= {self.stringify(value)}\n")
@@ -25,8 +25,8 @@ class Interpreter(Visitor):
             self.eh(error)
 
     def visit_BinaryExpr(self, expr: Binary) -> object:  # noqa: C901
-        left: object = self.evaluate(expr.left)
-        right: object = self.evaluate(expr.right)
+        left: SupportsFloat = self.evaluate(expr.left)
+        right: SupportsFloat = self.evaluate(expr.right)
 
         if expr.operator.ttype == TokenType.GREATER:
             self.checkNumberOperands(expr.operator, left, right)
@@ -68,7 +68,7 @@ class Interpreter(Visitor):
         return self.evaluate(expr.expression)
 
     def visit_UnaryExpr(self, expr: Unary) -> object:
-        right: object = self.evaluate(expr.right)
+        right: SupportsFloat = self.evaluate(expr.right)
 
         if expr.operator.ttype == TokenType.MINUS:
             self.checkNumberOperand(expr.operator, right)
@@ -121,5 +121,5 @@ class Interpreter(Visitor):
 
         return text
 
-    def evaluate(self, expr: Expr) -> object:
+    def evaluate(self, expr: Expr):
         return expr.accept(self)
