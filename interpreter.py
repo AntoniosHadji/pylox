@@ -3,28 +3,17 @@ from typing import List, SupportsFloat
 
 import expr
 import stmt
-from expr import Binary, Expr, Grouping, Literal, Unary
+from environment import Environment
+from errors import LoxRuntimeError
+from expr import Binary, Expr, Grouping, Literal, Unary, Variable
+from java_types import Void, Object
 from token_class import Token
 from token_type import TokenType
 
 
-# java type placeholders
-class Void:
-    pass
-
-
-class Object(object):
-    pass
-
-
-class LoxRuntimeError(RuntimeError):
-    def __init__(self, token: Token, message: str):
-        super().__init__()
-        self.token = token
-        self.message = message
-
-
 class Interpreter(expr.Visitor, stmt.Visitor):
+    environment: Environment = Environment()
+
     def __init__(self, error_handler):
         self.eh = error_handler
 
@@ -35,7 +24,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         except Exception as error:
             self.eh(error)
 
-    def visit_BinaryExpr(self, expr: Binary) -> object:  # noqa: C901
+    def visitBinaryExpr(self, expr: Binary) -> object:  # noqa: C901
         left: SupportsFloat = self.evaluate(expr.left)
         right: SupportsFloat = self.evaluate(expr.right)
 
@@ -72,13 +61,13 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         # // Unreachable.
         return None
 
-    def visit_LiteralExpr(self, expr: Literal):
+    def visitLiteralExpr(self, expr: Literal):
         return expr.value
 
-    def visit_GroupingExpr(self, expr: Grouping) -> object:
+    def visitGroupingExpr(self, expr: Grouping) -> object:
         return self.evaluate(expr.expression)
 
-    def visit_UnaryExpr(self, expr: Unary) -> object:
+    def visitUnaryExpr(self, expr: Unary) -> object:
         right: SupportsFloat = self.evaluate(expr.right)
 
         if expr.operator.ttype == TokenType.MINUS:
@@ -138,11 +127,22 @@ class Interpreter(expr.Visitor, stmt.Visitor):
     def execute(self, stmt: stmt.Stmt):
         stmt.accept(self)
 
-    def visit_ExpressionStmt(self, stmt: stmt.Expression) -> Void:
+    def visitExpressionStmt(self, stmt: stmt.Expression) -> Void:
         self.evaluate(stmt.expression)
         return Void()
 
-    def visit_PrintStmt(self, stmt: stmt.Print) -> Void:
+    def visitPrintStmt(self, stmt: stmt.Print) -> Void:
         value: Object = self.evaluate(stmt.expression)
         sys.stdout.write(self.stringify(value) + "\n")
         return Void()
+
+    def visitVarStmt(self, stmt: stmt.Var) -> Void:
+        value: Object = None
+        if stmt.initializer is not None:
+            value = self.evaluate(stmt.initializer)
+
+        self.environment.define(stmt.name.lexeme, value)
+        return Void()
+
+    def visitVariableExpr(self, expr: Variable) -> Object:
+        return self.environment.get(expr.name)

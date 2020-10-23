@@ -7,7 +7,8 @@ from parser import Parser
 from typing import List
 
 import stmt
-from interpreter import Interpreter, LoxRuntimeError
+from errors import LoxRuntimeError
+from interpreter import Interpreter
 from scanner import Scanner
 from token_class import Token
 from token_type import TokenType

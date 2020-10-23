@@ -7,18 +7,18 @@ class ASTPrinter(Visitor):
         # (in many langauage I'd rather use a switch on type)
         return expr.accept(self)
 
-    def visit_BinaryExpr(self, expr):
+    def visitBinaryExpr(self, expr):
         return f"({expr.operator.lexeme} {expr.left.accept(self)} {expr.right.accept(self)})"  # noqa: E501
 
-    def visit_GroupingExpr(self, expr):
+    def visitGroupingExpr(self, expr):
         return f"(group {expr.expression.accept(self)})"
 
-    def visit_LiteralExpr(self, expr):
+    def visitLiteralExpr(self, expr):
         if expr.value is None:
             return "nil"
         return str(expr.value)
 
-    def visit_UnaryExpr(self, expr):
+    def visitUnaryExpr(self, expr):
         return f"({expr.operator.lexeme} {expr.right.accept(self)})"
 
 

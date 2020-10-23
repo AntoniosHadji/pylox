@@ -1,3 +1,19 @@
+http://craftinginterpreters.com/statements-and-state.html#variable-syntax
+program        → declaration* EOF ;
+
+declaration    → varDecl
+               | statement ;
+
+statement      → exprStmt
+               | printStmt ;
+
+varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+
+primary        → "true" | "false" | "nil"
+               | NUMBER | STRING
+               | "(" expression ")"
+               | IDENTIFIER ;
+
 http://craftinginterpreters.com/statements-and-state.html#statements
 program        → statement* EOF ;
 
