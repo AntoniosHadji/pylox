@@ -1,3 +1,11 @@
+http://craftinginterpreters.com/statements-and-state.html#block-syntax-and-semantics
+statement      → exprStmt
+               | printStmt
+               | block ;
+
+block          → "{" declaration* "}" ;
+
+
 http://craftinginterpreters.com/statements-and-state.html#assignment-syntax
 expression     → assignment ;
 assignment     → IDENTIFIER "=" assignment

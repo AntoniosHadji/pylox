@@ -31,14 +31,15 @@ class Parser:
             if self.match(TokenType.VAR):
                 return self.varDeclaration()
             return self.statement()
-        except self.ParseError:
+        except self.ParserError:
             self.synchronize()
             return None
 
     def statement(self) -> stmt.Stmt:
         if self.match(TokenType.PRINT):
             return self.printStatement()
-
+        if self.match(TokenType.LEFT_BRACE):
+            return stmt.Block(self.block())
         return self.expressionStatement()
 
     def printStatement(self) -> stmt.Stmt:
@@ -49,9 +50,8 @@ class Parser:
     def varDeclaration(self) -> stmt.Stmt:
         name: Token = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
 
-        initializer: Expr = None
         if self.match(TokenType.EQUAL):
-            initializer = self.expression()
+            initializer: Expr = self.expression()
 
         self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
         return stmt.Var(name, initializer)
@@ -60,6 +60,15 @@ class Parser:
         expr: Expr = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
         return stmt.Expression(expr)
+
+    def block(self) -> List[stmt.Stmt]:
+        statements: List[stmt.Stmt] = []
+
+        while not self.check(TokenType.RIGHT_BRACE) and not self.isAtEnd():
+            statements.append(self.declaration())
+
+        self.consume(TokenType.RIGHT_BRACE, "Expect '}' after block.")
+        return statements
 
     def assignment(self) -> Expr:
         expr: Expr = self.equality()

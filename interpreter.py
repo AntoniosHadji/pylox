@@ -127,6 +127,22 @@ class Interpreter(expr.Visitor, stmt.Visitor):
     def execute(self, stmt: stmt.Stmt):
         stmt.accept(self)
 
+    def executeBlock(self, statements: List[stmt.Stmt], environment: Environment):
+        print("execute block")
+        previous: Environment = self.environment
+        try:
+            self.environment = environment
+
+            for statement in statements:
+                self.execute(statement)
+
+        finally:
+            self.environment = previous
+
+    def visitBlockStmt(self, stmt: stmt.Block) -> Void:
+        self.executeBlock(stmt.statements, Environment(self.environment))
+        return Void()
+
     def visitExpressionStmt(self, stmt: stmt.Expression) -> Void:
         self.evaluate(stmt.expression)
         return Void()
@@ -137,7 +153,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         return Void()
 
     def visitVarStmt(self, stmt: stmt.Var) -> Void:
-        value: Object = None
+        value: Object = Object()
         if stmt.initializer is not None:
             value = self.evaluate(stmt.initializer)
 

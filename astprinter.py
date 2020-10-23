@@ -21,6 +21,12 @@ class ASTPrinter(Visitor):
     def visitUnaryExpr(self, expr):
         return f"({expr.operator.lexeme} {expr.right.accept(self)})"
 
+    def visitAssignExpr(self, expr):
+        return repr(expr)
+
+    def visitVariableExpr(self, expr):
+        return repr(expr)
+
 
 if __name__ == "__main__":
 
