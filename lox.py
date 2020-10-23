@@ -42,6 +42,9 @@ def runPrompt():
 
 
 def run(line: str):
+    import pdb
+
+    pdb.set_trace()
     scanner: Scanner = Scanner(line, error_scan)
     tokens: list = scanner.scanTokens()
     parser: Parser = Parser(tokens, error_parse)
