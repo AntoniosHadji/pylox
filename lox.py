@@ -1,4 +1,8 @@
+import os
+import pdb
 import sys
+
+# local parser.py, also exists in Python library. (deprecated)
 from parser import Parser
 from typing import List
 
@@ -41,9 +45,8 @@ def runPrompt():
 
 
 def run(line: str):
-    import pdb
-
-    # pdb.set_trace()
+    if os.environ.get("DEBUG"):
+        pdb.set_trace()
     scanner: Scanner = Scanner(line, error_scan)
     tokens: List[Token] = scanner.scanTokens()
     parser: Parser = Parser(tokens, error_parse)
@@ -53,9 +56,10 @@ def run(line: str):
     if hadError:
         return
 
-    # for t in tokens:
-    #     print(t)
-    # sys.stdout.write(ASTPrinter().pprint(expression))
+    for t in tokens:
+        print(t)
+    for s in statements:
+        print(s)
     Interpreter(runtimeError).interpret(statements)
 
 
