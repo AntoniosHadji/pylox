@@ -1,6 +1,6 @@
 # AUTO-GENERATED: do not edit.  look at ./tool/generate_ast.py
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from abc import ABC, abstractmethod
 
 from token_class import Token
 

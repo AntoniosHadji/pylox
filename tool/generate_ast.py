@@ -26,6 +26,11 @@ def main():
             "Unary    : Token operator, Expr right",
         ],
     )
+    defineAst(
+        outputDir,
+        "Stmt",
+        ["Expression : Expr expression", "Print      : Expr expression"],
+    )
 
 
 def defineAst(outputDir: str, baseName: str, types: List[str]):
@@ -38,7 +43,18 @@ def defineAst(outputDir: str, baseName: str, types: List[str]):
         f.write("from dataclasses import dataclass\n")
         f.write("from abc import ABC, abstractmethod\n")
         f.write("\n")
-        f.write("from token_class import Token\n")
+        if baseName.lower() == "expr":
+            f.write("from token_class import Token\n")
+        elif baseName.lower() == "stmt":
+            f.write("from expr import Expr\n")
+        f.write("\n\n")
+
+        # base class for AST classes
+        # base class created first so it can be used as parameter to visitor methods
+        f.write(f"class {baseName}(ABC):\n")
+        f.write("    @abstractmethod\n")
+        f.write("    def accept(self, visitor):\n")
+        f.write("        pass\n")
         f.write("\n\n")
 
         # Visitor class
@@ -46,15 +62,9 @@ def defineAst(outputDir: str, baseName: str, types: List[str]):
         for t in types:
             f.write("    @abstractmethod\n")
             className = t.split(":")[0].strip()
-            f.write(f"    def visit_{className}{baseName}(self):\n")
+            # baseName added as parameter for python conversion
+            f.write(f"    def visit_{className}{baseName}(self, {baseName}):\n")
             f.write("        pass\n")
-        f.write("\n\n")
-
-        # base class for AST classes
-        f.write(f"class {baseName}(ABC):\n")
-        f.write("    @abstractmethod\n")
-        f.write("    def accept(self, visitor):\n")
-        f.write("        pass\n")
         f.write("\n\n")
 
         # The AST classes.
@@ -84,6 +94,16 @@ if __name__ == "__main__":
     main()
 
     p = pathlib.Path(__file__).resolve().parent.parent / "expr.py"
+    print(p)
+    print(
+        black.format_file_in_place(
+            src=p,
+            fast=False,
+            mode=black.Mode(target_versions={black.TargetVersion.PY38}),
+            write_back=black.WriteBack.YES,
+        )
+    )
+    p = pathlib.Path(__file__).resolve().parent.parent / "stmt.py"
     print(p)
     print(
         black.format_file_in_place(
