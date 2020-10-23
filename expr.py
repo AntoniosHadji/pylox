@@ -13,6 +13,10 @@ class Expr(ABC):
 
 class Visitor(ABC):
     @abstractmethod
+    def visitAssignExpr(self, Expr):
+        pass
+
+    @abstractmethod
     def visitBinaryExpr(self, Expr):
         pass
 
@@ -31,6 +35,15 @@ class Visitor(ABC):
     @abstractmethod
     def visitVariableExpr(self, Expr):
         pass
+
+
+@dataclass
+class Assign(Expr):
+    name: Token
+    value: Expr
+
+    def accept(self, visitor):
+        return visitor.visitAssignExpr(self)
 
 
 @dataclass

@@ -1,3 +1,8 @@
+http://craftinginterpreters.com/statements-and-state.html#assignment-syntax
+expression     → assignment ;
+assignment     → IDENTIFIER "=" assignment
+               | equality ;
+
 http://craftinginterpreters.com/statements-and-state.html#variable-syntax
 program        → declaration* EOF ;
 

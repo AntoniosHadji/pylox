@@ -1,7 +1,7 @@
 from typing import Callable, List
 
 import stmt
-from expr import Binary, Expr, Grouping, Literal, Unary, Variable
+from expr import Assign, Binary, Expr, Grouping, Literal, Unary, Variable
 from token_class import Token
 from token_type import TokenType
 
@@ -24,7 +24,7 @@ class Parser:
         return statements
 
     def expression(self) -> Expr:
-        return self.equality()
+        return self.assignment()
 
     def declaration(self) -> stmt.Stmt:
         try:
@@ -60,6 +60,21 @@ class Parser:
         expr: Expr = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
         return stmt.Expression(expr)
+
+    def assignment(self) -> Expr:
+        expr: Expr = self.equality()
+
+        if self.match(TokenType.EQUAL):
+            equals: Token = self.previous()
+            value: Expr = self.assignment()
+
+            if isinstance(expr, Variable):
+                name: Token = expr.name
+                return Assign(name, value)
+
+            self.error(equals, "Invalid assignment target.")
+
+        return expr
 
     def equality(self) -> Expr:
         # anything of higher precedence is returned without executing loop

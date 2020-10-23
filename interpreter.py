@@ -5,8 +5,8 @@ import expr
 import stmt
 from environment import Environment
 from errors import LoxRuntimeError
-from expr import Binary, Expr, Grouping, Literal, Unary, Variable
-from java_types import Void, Object
+from expr import Assign, Binary, Expr, Grouping, Literal, Unary, Variable
+from java_types import Object, Void
 from token_class import Token
 from token_type import TokenType
 
@@ -143,6 +143,12 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
         self.environment.define(stmt.name.lexeme, value)
         return Void()
+
+    def visitAssignExpr(self, expr: Assign) -> Object:
+        value: Object = self.evaluate(expr.value)
+
+        self.environment.assign(expr.name, value)
+        return value
 
     def visitVariableExpr(self, expr: Variable) -> Object:
         return self.environment.get(expr.name)
