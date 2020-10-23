@@ -1,9 +1,8 @@
 import sys
 from parser import Parser
-from typing import Union
+from typing import List
 
-from astprinter import ASTPrinter
-from expr import Expr
+import stmt
 from interpreter import Interpreter, LoxRuntimeError
 from scanner import Scanner
 from token_class import Token
@@ -44,20 +43,20 @@ def runPrompt():
 def run(line: str):
     import pdb
 
-    pdb.set_trace()
+    # pdb.set_trace()
     scanner: Scanner = Scanner(line, error_scan)
-    tokens: list = scanner.scanTokens()
+    tokens: List[Token] = scanner.scanTokens()
     parser: Parser = Parser(tokens, error_parse)
-    expression: Union[Expr, None] = parser.parse()
+    statements: List[stmt.Stmt] = parser.parse()
 
     # // Stop if there was a syntax error.
     if hadError:
         return
 
-    for t in tokens:
-        print(t)
-    sys.stdout.write(ASTPrinter().pprint(expression))
-    Interpreter(runtimeError).interpret(expression)
+    # for t in tokens:
+    #     print(t)
+    # sys.stdout.write(ASTPrinter().pprint(expression))
+    Interpreter(runtimeError).interpret(statements)
 
 
 def error_scan(line: int, message: str) -> None:

@@ -1,9 +1,20 @@
 import sys
-from typing import Optional, SupportsFloat
+from typing import List, SupportsFloat
 
-from expr import Binary, Expr, Grouping, Literal, Unary, Visitor
+import expr
+import stmt
+from expr import Binary, Expr, Grouping, Literal, Unary
 from token_class import Token
 from token_type import TokenType
+
+
+# java type placeholders
+class Void:
+    pass
+
+
+class Object(object):
+    pass
 
 
 class LoxRuntimeError(RuntimeError):
@@ -13,14 +24,14 @@ class LoxRuntimeError(RuntimeError):
         self.message = message
 
 
-class Interpreter(Visitor):
+class Interpreter(expr.Visitor, stmt.Visitor):
     def __init__(self, error_handler):
         self.eh = error_handler
 
-    def interpret(self, expression: Optional[Expr]):
+    def interpret(self, statements: List[stmt.Stmt]):
         try:
-            value: object = self.evaluate(expression)
-            sys.stdout.write(f"\n= {self.stringify(value)}\n")
+            for statement in statements:
+                self.execute(statement)
         except Exception as error:
             self.eh(error)
 
@@ -123,3 +134,15 @@ class Interpreter(Visitor):
 
     def evaluate(self, expr: Expr):
         return expr.accept(self)
+
+    def execute(self, stmt: stmt.Stmt):
+        stmt.accept(self)
+
+    def visit_ExpressionStmt(self, stmt: stmt.Expression) -> Void:
+        self.evaluate(stmt.expression)
+        return Void()
+
+    def visit_PrintStmt(self, stmt: stmt.Print) -> Void:
+        value: Object = self.evaluate(stmt.expression)
+        sys.stdout.write(self.stringify(value) + "\n")
+        return Void()

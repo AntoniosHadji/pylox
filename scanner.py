@@ -129,7 +129,7 @@ class Scanner:
         while self.peek() != '"' and not self.isAtEnd():
             if self.peek() == "\n":
                 self.line += 1
-                self.advance()
+            self.advance()
 
         if self.isAtEnd():
             self.error(self.line, "Unterminated string.")
