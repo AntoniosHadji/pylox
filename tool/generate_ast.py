@@ -32,6 +32,7 @@ def main():
         outputDir,
         "Stmt",
         [
+            "Block      : List[Stmt] statements",
             "Expression : Expr expression",
             "Print      : Expr expression",
             "Var        : Token name, Expr initializer",
@@ -52,6 +53,7 @@ def defineAst(outputDir: str, baseName: str, types: List[str]):
         f.write("from token_class import Token\n")
         if baseName.lower() == "stmt":
             f.write("from expr import Expr\n")
+            f.write("from typing import List\n")
         f.write("\n\n")
 
         # base class for AST classes

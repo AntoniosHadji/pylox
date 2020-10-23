@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 
 from token_class import Token
 from expr import Expr
+from typing import List
 
 
 class Stmt(ABC):
@@ -13,6 +14,10 @@ class Stmt(ABC):
 
 
 class Visitor(ABC):
+    @abstractmethod
+    def visitBlockStmt(self, Stmt):
+        pass
+
     @abstractmethod
     def visitExpressionStmt(self, Stmt):
         pass
@@ -24,6 +29,14 @@ class Visitor(ABC):
     @abstractmethod
     def visitVarStmt(self, Stmt):
         pass
+
+
+@dataclass
+class Block(Stmt):
+    statements: List[Stmt]
+
+    def accept(self, visitor):
+        return visitor.visitBlockStmt(self)
 
 
 @dataclass
