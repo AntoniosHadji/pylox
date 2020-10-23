@@ -13,19 +13,23 @@ class Expr(ABC):
 
 class Visitor(ABC):
     @abstractmethod
-    def visit_BinaryExpr(self, Expr):
+    def visitBinaryExpr(self, Expr):
         pass
 
     @abstractmethod
-    def visit_GroupingExpr(self, Expr):
+    def visitGroupingExpr(self, Expr):
         pass
 
     @abstractmethod
-    def visit_LiteralExpr(self, Expr):
+    def visitLiteralExpr(self, Expr):
         pass
 
     @abstractmethod
-    def visit_UnaryExpr(self, Expr):
+    def visitUnaryExpr(self, Expr):
+        pass
+
+    @abstractmethod
+    def visitVariableExpr(self, Expr):
         pass
 
 
@@ -36,7 +40,7 @@ class Binary(Expr):
     right: Expr
 
     def accept(self, visitor):
-        return visitor.visit_BinaryExpr(self)
+        return visitor.visitBinaryExpr(self)
 
 
 @dataclass
@@ -44,7 +48,7 @@ class Grouping(Expr):
     expression: Expr
 
     def accept(self, visitor):
-        return visitor.visit_GroupingExpr(self)
+        return visitor.visitGroupingExpr(self)
 
 
 @dataclass
@@ -52,7 +56,7 @@ class Literal(Expr):
     value: object
 
     def accept(self, visitor):
-        return visitor.visit_LiteralExpr(self)
+        return visitor.visitLiteralExpr(self)
 
 
 @dataclass
@@ -61,4 +65,12 @@ class Unary(Expr):
     right: Expr
 
     def accept(self, visitor):
-        return visitor.visit_UnaryExpr(self)
+        return visitor.visitUnaryExpr(self)
+
+
+@dataclass
+class Variable(Expr):
+    name: Token
+
+    def accept(self, visitor):
+        return visitor.visitVariableExpr(self)

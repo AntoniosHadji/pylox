@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 
+from token_class import Token
 from expr import Expr
 
 
@@ -13,11 +14,15 @@ class Stmt(ABC):
 
 class Visitor(ABC):
     @abstractmethod
-    def visit_ExpressionStmt(self, Stmt):
+    def visitExpressionStmt(self, Stmt):
         pass
 
     @abstractmethod
-    def visit_PrintStmt(self, Stmt):
+    def visitPrintStmt(self, Stmt):
+        pass
+
+    @abstractmethod
+    def visitVarStmt(self, Stmt):
         pass
 
 
@@ -26,7 +31,7 @@ class Expression(Stmt):
     expression: Expr
 
     def accept(self, visitor):
-        return visitor.visit_ExpressionStmt(self)
+        return visitor.visitExpressionStmt(self)
 
 
 @dataclass
@@ -34,4 +39,13 @@ class Print(Stmt):
     expression: Expr
 
     def accept(self, visitor):
-        return visitor.visit_PrintStmt(self)
+        return visitor.visitPrintStmt(self)
+
+
+@dataclass
+class Var(Stmt):
+    name: Token
+    initializer: Expr
+
+    def accept(self, visitor):
+        return visitor.visitVarStmt(self)

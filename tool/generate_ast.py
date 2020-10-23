@@ -24,12 +24,17 @@ def main():
             "Grouping : Expr expression",
             "Literal  : object value",
             "Unary    : Token operator, Expr right",
+            "Variable : Token name",
         ],
     )
     defineAst(
         outputDir,
         "Stmt",
-        ["Expression : Expr expression", "Print      : Expr expression"],
+        [
+            "Expression : Expr expression",
+            "Print      : Expr expression",
+            "Var        : Token name, Expr initializer",
+        ],
     )
 
 
@@ -43,9 +48,8 @@ def defineAst(outputDir: str, baseName: str, types: List[str]):
         f.write("from dataclasses import dataclass\n")
         f.write("from abc import ABC, abstractmethod\n")
         f.write("\n")
-        if baseName.lower() == "expr":
-            f.write("from token_class import Token\n")
-        elif baseName.lower() == "stmt":
+        f.write("from token_class import Token\n")
+        if baseName.lower() == "stmt":
             f.write("from expr import Expr\n")
         f.write("\n\n")
 
@@ -63,7 +67,7 @@ def defineAst(outputDir: str, baseName: str, types: List[str]):
             f.write("    @abstractmethod\n")
             className = t.split(":")[0].strip()
             # baseName added as parameter for python conversion
-            f.write(f"    def visit_{className}{baseName}(self, {baseName}):\n")
+            f.write(f"    def visit{className}{baseName}(self, {baseName}):\n")
             f.write("        pass\n")
         f.write("\n\n")
 
@@ -86,7 +90,7 @@ def defineType(writer: TextIO, baseName: str, className: str, fieldList: str):
         writer.write(f"    {name}: {field_type}\n")
     writer.write("\n")
     writer.write("    def accept(self, visitor):\n")
-    writer.write(f"        return visitor.visit_{className}{baseName}(self)\n")
+    writer.write(f"        return visitor.visit{className}{baseName}(self)\n")
     writer.write("\n\n")
 
 
