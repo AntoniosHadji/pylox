@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from abc import ABC, abstractmethod
 
 from token_class import Token
-from expr import Expr
 from typing import List
+from expr import Expr
 
 
 class Stmt(ABC):

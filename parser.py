@@ -1,7 +1,7 @@
 from typing import Callable, List
 
-import stmt
-from expr import Assign, Binary, Expr, Grouping, Literal, Logical, Unary, Variable
+import expr as e
+import stmt as s
 from java_types import Null
 from token_class import Token
 from token_type import TokenType
@@ -17,17 +17,17 @@ class Parser:
         self.tokens = tokens
         self.errorToken = error_function
 
-    def parse(self) -> List[stmt.Stmt]:
-        statements: List[stmt.Stmt] = []
+    def parse(self) -> List[s.Stmt]:
+        statements: List[s.Stmt] = []
         while not self.isAtEnd():
             statements.append(self.declaration())
 
         return statements
 
-    def expression(self) -> Expr:
+    def expression(self) -> e.Expr:
         return self.assignment()
 
-    def declaration(self) -> stmt.Stmt:
+    def declaration(self) -> s.Stmt:
         try:
             if self.match(TokenType.VAR):
                 return self.varDeclaration()
@@ -36,7 +36,7 @@ class Parser:
             self.synchronize()
             return None
 
-    def statement(self) -> stmt.Stmt:
+    def statement(self) -> s.Stmt:
         if self.match(TokenType.FOR):
             return self.forStatement()
         if self.match(TokenType.IF):
@@ -46,12 +46,12 @@ class Parser:
         if self.match(TokenType.WHILE):
             return self.whileStatement()
         if self.match(TokenType.LEFT_BRACE):
-            return stmt.Block(self.block())
+            return s.Block(self.block())
         return self.expressionStatement()
 
-    def forStatement(self) -> stmt.Stmt:
+    def forStatement(self) -> s.Stmt:
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.")
-        initializer: stmt.Stmt
+        initializer: s.Stmt
         if self.match(TokenType.SEMICOLON):
             initializer = Null()
         elif self.match(TokenType.VAR):
@@ -59,73 +59,73 @@ class Parser:
         else:
             initializer = self.expressionStatement()
 
-        condition: Expr = Null()
+        condition: e.Expr = Null()
         if not self.check(TokenType.SEMICOLON):
             condition = self.expression()
 
         self.consume(TokenType.SEMICOLON, "Expect ';' after loop condition.")
 
-        increment: Expr = Null()
+        increment: e.Expr = Null()
         if not self.check(TokenType.RIGHT_PAREN):
             increment = self.expression()
 
         self.consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.")
 
-        body: stmt.Stmt = self.statement()
+        body: s.Stmt = self.statement()
 
         if not isinstance(increment, Null):
-            body = stmt.Block([body, stmt.Expression(increment)])
+            body = s.Block([body, s.e.Expression(increment)])
 
         if isinstance(condition, Null):
-            condition = Literal(True)
-        body = stmt.While(condition, body)
+            condition = e.Literal(True)
+        body = s.While(condition, body)
 
         if not isinstance(initializer, Null):
-            body = stmt.Block([initializer, body])
+            body = s.Block([initializer, body])
 
         return body
 
-    def ifStatement(self) -> stmt.Stmt:
+    def ifStatement(self) -> s.Stmt:
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.")
-        condition: Expr = self.expression()
+        condition: e.Expr = self.expression()
         self.consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.")
 
-        thenBranch: stmt.Stmt = self.statement()
-        elseBranch: stmt.Stmt = None
+        thenBranch: s.Stmt = self.statement()
+        elseBranch: s.Stmt = None
         if self.match(TokenType.ELSE):
             elseBranch = self.statement()
 
-        return stmt.If(condition, thenBranch, elseBranch)
+        return s.If(condition, thenBranch, elseBranch)
 
-    def printStatement(self) -> stmt.Stmt:
-        value: Expr = self.expression()
+    def printStatement(self) -> s.Stmt:
+        value: e.Expr = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
-        return stmt.Print(value)
+        return s.Print(value)
 
-    def varDeclaration(self) -> stmt.Stmt:
+    def varDeclaration(self) -> s.Stmt:
         name: Token = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
 
         if self.match(TokenType.EQUAL):
-            initializer: Expr = self.expression()
+            initializer: e.Expr = self.expression()
 
         self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
-        return stmt.Var(name, initializer)
+        return s.Var(name, initializer)
 
-    def whileStatement(self) -> stmt.Stmt:
+    def whileStatement(self) -> s.Stmt:
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.")
-        condition: Expr = self.expression()
+        condition: e.Expr = self.expression()
         self.consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.")
-        body: stmt.Stmt = self.statement()
+        body: s.Stmt = self.statement()
 
-        return stmt.While(condition, body)
+        return s.While(condition, body)
 
-    def expressionStatement(self) -> stmt.Stmt:
-        expr: Expr = self.expression()
+    def expressionStatement(self) -> s.Stmt:
+        expr: e.Expr = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
-        return stmt.Expression(expr)
+        return s.e.Expression(expr)
 
-    def block(self) -> List[stmt.Stmt]:
-        statements: List[stmt.Stmt] = []
+    def block(self) -> List[s.Stmt]:
+        statements: List[s.Stmt] = []
 
         while not self.check(TokenType.RIGHT_BRACE) and not self.isAtEnd():
             statements.append(self.declaration())
@@ -133,59 +133,59 @@ class Parser:
         self.consume(TokenType.RIGHT_BRACE, "Expect '}' after block.")
         return statements
 
-    def assignment(self) -> Expr:
-        expr: Expr = self._or()
+    def assignment(self) -> e.Expr:
+        expr: e.Expr = self._or()
 
         if self.match(TokenType.EQUAL):
             equals: Token = self.previous()
-            value: Expr = self.assignment()
+            value: e.Expr = self.assignment()
 
-            if isinstance(expr, Variable):
+            if isinstance(expr, e.Variable):
                 name: Token = expr.name
-                return Assign(name, value)
+                return e.Assign(name, value)
 
             self.error(equals, "Invalid assignment target.")
 
         return expr
 
     # underscore to prevent colliding with python builtin or
-    def _or(self) -> Expr:
-        expr: Expr = self._and()
+    def _or(self) -> e.Expr:
+        expr: e.Expr = self._and()
 
         while self.match(TokenType.OR):
             operator: Token = self.previous()
-            right: Expr = self._and()
-            expr = Logical(expr, operator, right)
+            right: e.Expr = self._and()
+            expr = e.Logical(expr, operator, right)
 
         return expr
 
     # underscore to prevent colliding with python builtin and
-    def _and(self) -> Expr:
-        expr: Expr = self.equality()
+    def _and(self) -> e.Expr:
+        expr: e.Expr = self.equality()
 
         while self.match(TokenType.AND):
             operator: Token = self.previous()
-            right: Expr = self.equality()
-            expr = Logical(expr, operator, right)
+            right: e.Expr = self.equality()
+            expr = e.Logical(expr, operator, right)
 
         return expr
 
-    def equality(self) -> Expr:
+    def equality(self) -> e.Expr:
         # anything of higher precedence is returned without executing loop
-        expr: Expr = self.comparison()
+        expr: e.Expr = self.comparison()
 
         while self.match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL):
             operator: Token = self.previous()
-            right: Expr = self.comparison()
-            expr = Binary(expr, operator, right)
+            right: e.Expr = self.comparison()
+            expr = e.Binary(expr, operator, right)
 
         return expr
 
-    def comparison(self) -> Expr:
+    def comparison(self) -> e.Expr:
         # TODO: you could create a helper method for parsing a left-associative
         # series of binary operators given a list of token types and an operand
         # method handle to simplify this redundant code.
-        expr: Expr = self.term()
+        expr: e.Expr = self.term()
 
         while self.match(
             TokenType.GREATER,
@@ -194,57 +194,85 @@ class Parser:
             TokenType.LESS_EQUAL,
         ):
             operator: Token = self.previous()
-            right: Expr = self.term()
-            expr = Binary(expr, operator, right)
+            right: e.Expr = self.term()
+            expr = e.Binary(expr, operator, right)
 
         return expr
 
-    def term(self) -> Expr:
+    def term(self) -> e.Expr:
         # anything of higher precedence is returned without executing loop
-        expr: Expr = self.factor()
+        expr: e.Expr = self.factor()
 
         while self.match(TokenType.MINUS, TokenType.PLUS):
             operator: Token = self.previous()
-            right: Expr = self.factor()
-            expr = Binary(expr, operator, right)
+            right: e.Expr = self.factor()
+            expr = e.Binary(expr, operator, right)
 
         return expr
 
-    def factor(self) -> Expr:
+    def factor(self) -> e.Expr:
         # anything of higher precedence is returned without executing loop
-        expr: Expr = self.unary()
+        expr: e.Expr = self.unary()
 
         while self.match(TokenType.STAR, TokenType.SLASH):
             operator: Token = self.previous()
-            right: Expr = self.unary()
-            expr = Binary(expr, operator, right)
+            right: e.Expr = self.unary()
+            expr = e.Binary(expr, operator, right)
 
         return expr
 
-    def unary(self) -> Expr:
+    def unary(self) -> e.Expr:
         if self.match(TokenType.BANG, TokenType.MINUS):
             operator: Token = self.previous()
-            right: Expr = self.unary()
-            return Unary(operator, right)
-        return self.primary()
+            right: e.Expr = self.unary()
+            return e.Unary(operator, right)
+        return self.call()
 
-    def primary(self) -> Expr:
+    def finishCall(self, callee: e.Expr) -> e.Expr:
+        arguments: List[e.Expr] = []
+        if not self.check(TokenType.RIGHT_PAREN):
+            arguments.append(self.expression())
+            while self.match(TokenType.COMMA):
+                # java has hard 255 limit, c suggests support for at least 127
+                if len(arguments) >= 255:
+                    # report error but don't halt
+                    self.error(self.peek(), "Can't have more than 255 arguments.")
+                arguments.append(self.expression())
+
+        paren: Token = self.consume(
+            TokenType.RIGHT_PAREN, "Expect ')' after arguments."
+        )
+
+        return e.Call(callee, paren, arguments)
+
+    def call(self) -> e.Expr:
+        expr: e.Expr = self.primary()
+
+        while True:
+            if self.match(TokenType.LEFT_PAREN):
+                expr = self.finishCall(expr)
+            else:
+                break
+
+        return expr
+
+    def primary(self) -> e.Expr:
         if self.match(TokenType.FALSE):
-            return Literal(False)
+            return e.Literal(False)
         if self.match(TokenType.TRUE):
-            return Literal(True)
+            return e.Literal(True)
         if self.match(TokenType.NIL):
-            return Literal(None)
+            return e.Literal(None)
         if self.match(TokenType.NUMBER, TokenType.STRING):
-            return Literal(self.previous().literal)
+            return e.Literal(self.previous().literal)
 
         if self.match(TokenType.IDENTIFIER):
-            return Variable(self.previous())
+            return e.Variable(self.previous())
 
         if self.match(TokenType.LEFT_PAREN):
-            expr: Expr = self.expression()
+            expr: e.Expr = self.expression()
             self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
-            return Grouping(expr)
+            return e.Grouping(expr)
 
         raise self.error(self.peek(), "Expect expression.")
 

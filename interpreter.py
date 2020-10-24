@@ -1,30 +1,32 @@
 import sys
 from typing import List, SupportsFloat
 
-import expr
-import stmt
+import expr as e
+import stmt as s
 from environment import Environment
 from errors import LoxRuntimeError
-from expr import Assign, Binary, Expr, Grouping, Literal, Logical, Unary, Variable
+from global_functions import Clock
 from java_types import Null, Object, Void
+from loxcallable import LoxCallable
 from token_class import Token
 from token_type import TokenType
 
 
-class Interpreter(expr.Visitor, stmt.Visitor):
-    environment: Environment = Environment()
-
+class Interpreter(e.Visitor, s.Visitor):
     def __init__(self, error_handler):
+        self.globals: Environment = Environment()
+        self.environment: Environment = self.globals
         self.eh = error_handler
+        self.globals.define("clock", Clock)
 
-    def interpret(self, statements: List[stmt.Stmt]):
+    def interpret(self, statements: List[s.Stmt]):
         try:
             for statement in statements:
                 self.execute(statement)
         except Exception as error:
             self.eh(error)
 
-    def visitBinaryExpr(self, expr: Binary) -> object:  # noqa: C901
+    def visitBinaryExpr(self, expr: e.Binary) -> object:  # noqa: C901
         left: SupportsFloat = self.evaluate(expr.left)
         right: SupportsFloat = self.evaluate(expr.right)
 
@@ -61,10 +63,30 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         # // Unreachable.
         return None
 
-    def visitLiteralExpr(self, expr: Literal):
+    def visitCallExpr(self, expr: e.Call) -> Object:
+        function: Object = self.evaluate(expr.callee)
+
+        arguments: List[Object] = []
+        for argument in expr.arguments:
+            arguments.append(self.evaluate(argument))
+
+        # requires cast in java
+        # http://craftinginterpreters.com/functions.html#interpreting-function-calls
+        if not isinstance(function, LoxCallable):
+            raise LoxRuntimeError(expr.paren, "Can only call functions and classes.")
+
+        if len(arguments) != function.arity():
+            raise LoxRuntimeError(
+                expr.paren,
+                f"Expected {function.arity()} arguments but got {len(arguments)}",
+            )
+
+        return function.call(self, arguments)
+
+    def visitLiteralExpr(self, expr: e.Literal):
         return expr.value
 
-    def visitLogicalExpr(self, expr: Logical) -> Object:
+    def visitLogicalExpr(self, expr: e.Logical) -> Object:
         left: Object = self.evaluate(expr.left)
 
         if expr.operator.ttype == TokenType.OR:
@@ -76,10 +98,10 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
         return self.evaluate(expr.right)
 
-    def visitGroupingExpr(self, expr: Grouping) -> object:
+    def visitGroupingExpr(self, expr: e.Grouping) -> object:
         return self.evaluate(expr.expression)
 
-    def visitUnaryExpr(self, expr: Unary) -> object:
+    def visitUnaryExpr(self, expr: e.Unary) -> object:
         right: SupportsFloat = self.evaluate(expr.right)
 
         if expr.operator.ttype == TokenType.MINUS:
@@ -133,13 +155,13 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
         return text
 
-    def evaluate(self, expr: Expr):
+    def evaluate(self, expr: e.Expr):
         return expr.accept(self)
 
-    def execute(self, stmt: stmt.Stmt):
+    def execute(self, stmt: s.Stmt):
         stmt.accept(self)
 
-    def executeBlock(self, statements: List[stmt.Stmt], environment: Environment):
+    def executeBlock(self, statements: List[s.Stmt], environment: Environment):
         previous: Environment = self.environment
         try:
             self.environment = environment
@@ -150,15 +172,15 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         finally:
             self.environment = previous
 
-    def visitBlockStmt(self, stmt: stmt.Block) -> Void:
+    def visitBlockStmt(self, stmt: s.Block) -> Void:
         self.executeBlock(stmt.statements, Environment(self.environment))
         return Void()
 
-    def visitExpressionStmt(self, stmt: stmt.Expression) -> Void:
+    def visitExpressionStmt(self, stmt: s.Expression) -> Void:
         self.evaluate(stmt.expression)
         return Void()
 
-    def visitIfStmt(self, stmt: stmt.If) -> Void:
+    def visitIfStmt(self, stmt: s.If) -> Void:
         if self.isTruthy(self.evaluate(stmt.condition)):
             self.execute(stmt.thenBranch)
         elif stmt.elseBranch is not None:
@@ -166,12 +188,12 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
         return Void()
 
-    def visitPrintStmt(self, stmt: stmt.Print) -> Void:
+    def visitPrintStmt(self, stmt: s.Print) -> Void:
         value: Object = self.evaluate(stmt.expression)
         sys.stdout.write(self.stringify(value) + "\n")
         return Void()
 
-    def visitVarStmt(self, stmt: stmt.Var) -> Void:
+    def visitVarStmt(self, stmt: s.Var) -> Void:
         value: Object = Object()
         if stmt.initializer is not None:
             value = self.evaluate(stmt.initializer)
@@ -179,17 +201,17 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         self.environment.define(stmt.name.lexeme, value)
         return Void()
 
-    def visitWhileStmt(self, stmt: stmt.While) -> Void:
+    def visitWhileStmt(self, stmt: s.While) -> Void:
         while self.isTruthy(self.evaluate(stmt.condition)):
             self.execute(stmt.body)
 
         return Null()
 
-    def visitAssignExpr(self, expr: Assign) -> Object:
+    def visitAssignExpr(self, expr: e.Assign) -> Object:
         value: Object = self.evaluate(expr.value)
 
         self.environment.assign(expr.name, value)
         return value
 
-    def visitVariableExpr(self, expr: Variable) -> Object:
+    def visitVariableExpr(self, expr: e.Variable) -> Object:
         return self.environment.get(expr.name)

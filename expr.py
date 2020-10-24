@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from abc import ABC, abstractmethod
 
 from token_class import Token
+from typing import List
 
 
 class Expr(ABC):
@@ -18,6 +19,10 @@ class Visitor(ABC):
 
     @abstractmethod
     def visitBinaryExpr(self, Expr):
+        pass
+
+    @abstractmethod
+    def visitCallExpr(self, Expr):
         pass
 
     @abstractmethod
@@ -58,6 +63,16 @@ class Binary(Expr):
 
     def accept(self, visitor):
         return visitor.visitBinaryExpr(self)
+
+
+@dataclass
+class Call(Expr):
+    callee: Expr
+    paren: Token
+    arguments: List[Expr]
+
+    def accept(self, visitor):
+        return visitor.visitCallExpr(self)
 
 
 @dataclass

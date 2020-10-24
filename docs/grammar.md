@@ -1,3 +1,9 @@
+http://craftinginterpreters.com/functions.html
+unary          → ( "!" | "-" ) unary | call ;
+call           → primary ( "(" arguments? ")" )* ;
+
+arguments      → expression ( "," expression )* ;
+
 http://craftinginterpreters.com/control-flow.html#for-loops
 statement      → exprStmt
                | forStmt

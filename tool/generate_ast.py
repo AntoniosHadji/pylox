@@ -22,6 +22,7 @@ def main():
         [
             "Assign   : Token name, Expr value",
             "Binary   : Expr left, Token operator, Expr right",
+            "Call     : Expr callee, Token paren, List[Expr] arguments",
             "Grouping : Expr expression",
             "Literal  : object value",
             "Logical  : Expr left, Token operator, Expr right",
@@ -54,9 +55,9 @@ def defineAst(outputDir: str, baseName: str, types: List[str]):
         f.write("from abc import ABC, abstractmethod\n")
         f.write("\n")
         f.write("from token_class import Token\n")
+        f.write("from typing import List\n")
         if baseName.lower() == "stmt":
             f.write("from expr import Expr\n")
-            f.write("from typing import List\n")
         f.write("\n\n")
 
         # base class for AST classes
