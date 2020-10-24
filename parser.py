@@ -2,6 +2,7 @@ from typing import Callable, List
 
 import stmt
 from expr import Assign, Binary, Expr, Grouping, Literal, Logical, Unary, Variable
+from java_types import Null
 from token_class import Token
 from token_type import TokenType
 
@@ -36,13 +37,53 @@ class Parser:
             return None
 
     def statement(self) -> stmt.Stmt:
-        if self.match(TokenType.PRINT):
-            return self.printStatement()
-        if self.match(TokenType.LEFT_BRACE):
-            return stmt.Block(self.block())
+        if self.match(TokenType.FOR):
+            return self.forStatement()
         if self.match(TokenType.IF):
             return self.ifStatement()
+        if self.match(TokenType.PRINT):
+            return self.printStatement()
+        if self.match(TokenType.WHILE):
+            return self.whileStatement()
+        if self.match(TokenType.LEFT_BRACE):
+            return stmt.Block(self.block())
         return self.expressionStatement()
+
+    def forStatement(self) -> stmt.Stmt:
+        self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.")
+        initializer: stmt.Stmt
+        if self.match(TokenType.SEMICOLON):
+            initializer = Null()
+        elif self.match(TokenType.VAR):
+            initializer = self.varDeclaration()
+        else:
+            initializer = self.expressionStatement()
+
+        condition: Expr = Null()
+        if not self.check(TokenType.SEMICOLON):
+            condition = self.expression()
+
+        self.consume(TokenType.SEMICOLON, "Expect ';' after loop condition.")
+
+        increment: Expr = Null()
+        if not self.check(TokenType.RIGHT_PAREN):
+            increment = self.expression()
+
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.")
+
+        body: stmt.Stmt = self.statement()
+
+        if not isinstance(increment, Null):
+            body = stmt.Block([body, stmt.Expression(increment)])
+
+        if isinstance(condition, Null):
+            condition = Literal(True)
+        body = stmt.While(condition, body)
+
+        if not isinstance(initializer, Null):
+            body = stmt.Block([initializer, body])
+
+        return body
 
     def ifStatement(self) -> stmt.Stmt:
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.")
@@ -69,6 +110,14 @@ class Parser:
 
         self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
         return stmt.Var(name, initializer)
+
+    def whileStatement(self) -> stmt.Stmt:
+        self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.")
+        condition: Expr = self.expression()
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.")
+        body: stmt.Stmt = self.statement()
+
+        return stmt.While(condition, body)
 
     def expressionStatement(self) -> stmt.Stmt:
         expr: Expr = self.expression()

@@ -6,7 +6,7 @@ import stmt
 from environment import Environment
 from errors import LoxRuntimeError
 from expr import Assign, Binary, Expr, Grouping, Literal, Logical, Unary, Variable
-from java_types import Object, Void
+from java_types import Null, Object, Void
 from token_class import Token
 from token_type import TokenType
 
@@ -140,7 +140,6 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         stmt.accept(self)
 
     def executeBlock(self, statements: List[stmt.Stmt], environment: Environment):
-        print("execute block")
         previous: Environment = self.environment
         try:
             self.environment = environment
@@ -179,6 +178,12 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
         self.environment.define(stmt.name.lexeme, value)
         return Void()
+
+    def visitWhileStmt(self, stmt: stmt.While) -> Void:
+        while self.isTruthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.body)
+
+        return Null()
 
     def visitAssignExpr(self, expr: Assign) -> Object:
         value: Object = self.evaluate(expr.value)

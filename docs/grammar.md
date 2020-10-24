@@ -1,3 +1,24 @@
+http://craftinginterpreters.com/control-flow.html#for-loops
+statement      → exprStmt
+               | forStmt
+               | ifStmt
+               | printStmt
+               | whileStmt
+               | block ;
+
+forStmt        → "for" "(" ( varDecl | exprStmt | ";" )
+                 expression? ";"
+                 expression? ")" statement ;
+
+http://craftinginterpreters.com/control-flow.html#while-loops
+statement      → exprStmt
+               | ifStmt
+               | printStmt
+               | whileStmt
+               | block ;
+
+whileStmt      → "while" "(" expression ")" statement ;
+
 http://craftinginterpreters.com/control-flow.html#logical-operators
 expression     → assignment ;
 assignment     → identifier "=" assignment
