@@ -1,7 +1,7 @@
 from typing import Callable, List
 
 import stmt
-from expr import Assign, Binary, Expr, Grouping, Literal, Unary, Variable
+from expr import Assign, Binary, Expr, Grouping, Literal, Logical, Unary, Variable
 from token_class import Token
 from token_type import TokenType
 
@@ -40,7 +40,21 @@ class Parser:
             return self.printStatement()
         if self.match(TokenType.LEFT_BRACE):
             return stmt.Block(self.block())
+        if self.match(TokenType.IF):
+            return self.ifStatement()
         return self.expressionStatement()
+
+    def ifStatement(self) -> stmt.Stmt:
+        self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.")
+        condition: Expr = self.expression()
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.")
+
+        thenBranch: stmt.Stmt = self.statement()
+        elseBranch: stmt.Stmt = None
+        if self.match(TokenType.ELSE):
+            elseBranch = self.statement()
+
+        return stmt.If(condition, thenBranch, elseBranch)
 
     def printStatement(self) -> stmt.Stmt:
         value: Expr = self.expression()
@@ -71,7 +85,7 @@ class Parser:
         return statements
 
     def assignment(self) -> Expr:
-        expr: Expr = self.equality()
+        expr: Expr = self._or()
 
         if self.match(TokenType.EQUAL):
             equals: Token = self.previous()
@@ -82,6 +96,28 @@ class Parser:
                 return Assign(name, value)
 
             self.error(equals, "Invalid assignment target.")
+
+        return expr
+
+    # underscore to prevent colliding with python builtin or
+    def _or(self) -> Expr:
+        expr: Expr = self._and()
+
+        while self.match(TokenType.OR):
+            operator: Token = self.previous()
+            right: Expr = self._and()
+            expr = Logical(expr, operator, right)
+
+        return expr
+
+    # underscore to prevent colliding with python builtin and
+    def _and(self) -> Expr:
+        expr: Expr = self.equality()
+
+        while self.match(TokenType.AND):
+            operator: Token = self.previous()
+            right: Expr = self.equality()
+            expr = Logical(expr, operator, right)
 
         return expr
 

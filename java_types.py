@@ -3,5 +3,9 @@ class Void:
     pass
 
 
-class Object(object):
+class Object:
+    pass
+
+
+class Null(Void):
     pass

@@ -5,7 +5,7 @@ import expr
 import stmt
 from environment import Environment
 from errors import LoxRuntimeError
-from expr import Assign, Binary, Expr, Grouping, Literal, Unary, Variable
+from expr import Assign, Binary, Expr, Grouping, Literal, Logical, Unary, Variable
 from java_types import Object, Void
 from token_class import Token
 from token_type import TokenType
@@ -63,6 +63,18 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
     def visitLiteralExpr(self, expr: Literal):
         return expr.value
+
+    def visitLogicalExpr(self, expr: Logical) -> Object:
+        left: Object = self.evaluate(expr.left)
+
+        if expr.operator.ttype == TokenType.OR:
+            if self.isTruthy(left):
+                return left
+        else:
+            if not self.isTruthy(left):
+                return left
+
+        return self.evaluate(expr.right)
 
     def visitGroupingExpr(self, expr: Grouping) -> object:
         return self.evaluate(expr.expression)
@@ -145,6 +157,14 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
     def visitExpressionStmt(self, stmt: stmt.Expression) -> Void:
         self.evaluate(stmt.expression)
+        return Void()
+
+    def visitIfStmt(self, stmt: stmt.If) -> Void:
+        if self.isTruthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.thenBranch)
+        elif stmt.elseBranch is not None:
+            self.execute(stmt.elseBranch)
+
         return Void()
 
     def visitPrintStmt(self, stmt: stmt.Print) -> Void:

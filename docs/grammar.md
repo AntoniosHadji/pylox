@@ -1,3 +1,19 @@
+http://craftinginterpreters.com/control-flow.html#logical-operators
+expression     → assignment ;
+assignment     → identifier "=" assignment
+               | logic_or ;
+logic_or       → logic_and ( "or" logic_and )* ;
+logic_and      → equality ( "and" equality )* ;
+
+http://craftinginterpreters.com/control-flow.html#conditional-execution
+statement      → exprStmt
+               | ifStmt
+               | printStmt
+               | block ;
+
+ifStmt         → "if" "(" expression ")" statement
+               ( "else" statement )? ;
+
 http://craftinginterpreters.com/statements-and-state.html#block-syntax-and-semantics
 statement      → exprStmt
                | printStmt
