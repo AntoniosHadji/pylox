@@ -1,15 +1,16 @@
 # java type placeholders
-from typing import Any
+from expr import Expr
+from stmt import Stmt
 
 
 class Void:
     pass
 
 
-class Object(Any):
+class Object:
     pass
 
 
-class Null(Any):
+class Null(Void, Expr, Stmt):
     def accept(self, visitor):
         return None

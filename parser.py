@@ -29,6 +29,8 @@ class Parser:
 
     def declaration(self) -> s.Stmt:
         try:
+            if self.match(TokenType.FUN):
+                return self.function("function")
             if self.match(TokenType.VAR):
                 return self.varDeclaration()
             return self.statement()
@@ -74,7 +76,7 @@ class Parser:
         body: s.Stmt = self.statement()
 
         if not isinstance(increment, Null):
-            body = s.Block([body, s.e.Expression(increment)])
+            body = s.Block([body, s.Expression(increment)])
 
         if isinstance(condition, Null):
             condition = e.Literal(True)
@@ -122,7 +124,29 @@ class Parser:
     def expressionStatement(self) -> s.Stmt:
         expr: e.Expr = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
-        return s.e.Expression(expr)
+        return s.Expression(expr)
+
+    def function(self, kind: str) -> s.Function:
+        name: Token = self.consume(TokenType.IDENTIFIER, f"Expect {kind} name.")
+        self.consume(TokenType.LEFT_PAREN, f"Expect '(' after {kind} name.")
+        parameters: List[Token] = []
+        if not self.check(TokenType.RIGHT_PAREN):
+            parameters.append(
+                self.consume(TokenType.IDENTIFIER, "Expect parameter name.")
+            )
+            while self.match(TokenType.COMMA):
+                if len(parameters) >= 255:
+                    self.error(self.peek(), "Can't have more than 255 parameters.")
+
+                parameters.append(
+                    self.consume(TokenType.IDENTIFIER, "Expect parameter name.")
+                )
+
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.")
+        # block assumes this has already been consumed
+        self.consume(TokenType.LEFT_BRACE, "Expect '{' before {kind} body.")
+        body: List[s.Stmt] = self.block()
+        return s.Function(name, parameters, body)
 
     def block(self) -> List[s.Stmt]:
         statements: List[s.Stmt] = []

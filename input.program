@@ -47,3 +47,10 @@ while (a < 10000) {
 print "for loop:";
 for (var x=0; x<10; x = x + 1)
   print x;
+
+print "function definition and execution";
+fun sayHi(first, last) {
+  print "Hi, " + first + " " + last + "!";
+}
+
+sayHi("Dear", "Reader");

@@ -1,3 +1,13 @@
+http://craftinginterpreters.com/functions.html#function-declarations
+declaration    → funDecl
+               | varDecl
+               | statement ;
+
+funDecl        → "fun" function ;
+function       → IDENTIFIER "(" parameters? ")" block ;
+
+parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
+
 http://craftinginterpreters.com/functions.html
 unary          → ( "!" | "-" ) unary | call ;
 call           → primary ( "(" arguments? ")" )* ;

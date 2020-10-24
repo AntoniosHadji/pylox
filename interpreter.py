@@ -8,6 +8,7 @@ from errors import LoxRuntimeError
 from global_functions import Clock
 from java_types import Null, Object, Void
 from loxcallable import LoxCallable
+from loxfunction import LoxFunction
 from token_class import Token
 from token_type import TokenType
 
@@ -179,6 +180,11 @@ class Interpreter(e.Visitor, s.Visitor):
     def visitExpressionStmt(self, stmt: s.Expression) -> Void:
         self.evaluate(stmt.expression)
         return Void()
+
+    def visitFunctionStmt(self, stmt: s.Function) -> Void:
+        function: LoxFunction = LoxFunction(stmt)
+        self.environment.define(stmt.name.lexeme, function)
+        return Null()
 
     def visitIfStmt(self, stmt: s.If) -> Void:
         if self.isTruthy(self.evaluate(stmt.condition)):

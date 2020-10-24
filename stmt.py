@@ -23,6 +23,10 @@ class Visitor(ABC):
         pass
 
     @abstractmethod
+    def visitFunctionStmt(self, Stmt):
+        pass
+
+    @abstractmethod
     def visitIfStmt(self, Stmt):
         pass
 
@@ -53,6 +57,16 @@ class Expression(Stmt):
 
     def accept(self, visitor):
         return visitor.visitExpressionStmt(self)
+
+
+@dataclass
+class Function(Stmt):
+    name: Token
+    params: List[Token]
+    body: List[Stmt]
+
+    def accept(self, visitor):
+        return visitor.visitFunctionStmt(self)
 
 
 @dataclass
