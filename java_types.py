@@ -7,10 +7,6 @@ class Void:
     pass
 
 
-class Object:
-    pass
-
-
 class Null(Void, Expr, Stmt):
     def accept(self, visitor):
         return None

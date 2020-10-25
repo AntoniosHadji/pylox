@@ -6,7 +6,7 @@ import stmt as s
 from environment import Environment
 from errors import LoxRuntimeError
 from global_functions import Clock
-from java_types import Null, Object, Void
+from java_types import Null, Void
 from loxcallable import LoxCallable
 from loxfunction import LoxFunction
 from return_class import Return
@@ -65,10 +65,10 @@ class Interpreter(e.Visitor, s.Visitor):
         # // Unreachable.
         return None
 
-    def visitCallExpr(self, expr: e.Call) -> Object:
-        function: Object = self.evaluate(expr.callee)
+    def visitCallExpr(self, expr: e.Call) -> object:
+        function: object = self.evaluate(expr.callee)
 
-        arguments: List[Object] = []
+        arguments: List[object] = []
         for argument in expr.arguments:
             arguments.append(self.evaluate(argument))
 
@@ -88,8 +88,8 @@ class Interpreter(e.Visitor, s.Visitor):
     def visitLiteralExpr(self, expr: e.Literal):
         return expr.value
 
-    def visitLogicalExpr(self, expr: e.Logical) -> Object:
-        left: Object = self.evaluate(expr.left)
+    def visitLogicalExpr(self, expr: e.Logical) -> object:
+        left: object = self.evaluate(expr.left)
 
         if expr.operator.ttype == TokenType.OR:
             if self.isTruthy(left):
@@ -196,19 +196,19 @@ class Interpreter(e.Visitor, s.Visitor):
         return Void()
 
     def visitPrintStmt(self, stmt: s.Print) -> Void:
-        value: Object = self.evaluate(stmt.expression)
+        value: object = self.evaluate(stmt.expression)
         sys.stdout.write(self.stringify(value) + "\n")
         return Void()
 
     def visitReturnStmt(self, stmt: Return) -> Void:
-        value: Object = Null()
+        value: object = Null()
         if stmt.value is not None:
             value = self.evaluate(stmt.value)
 
         raise Return(value)
 
     def visitVarStmt(self, stmt: s.Var) -> Void:
-        value: Object = Object()
+        value: object = object()
         if stmt.initializer is not None:
             value = self.evaluate(stmt.initializer)
 
@@ -221,11 +221,11 @@ class Interpreter(e.Visitor, s.Visitor):
 
         return Null()
 
-    def visitAssignExpr(self, expr: e.Assign) -> Object:
-        value: Object = self.evaluate(expr.value)
+    def visitAssignExpr(self, expr: e.Assign) -> object:
+        value: object = self.evaluate(expr.value)
 
         self.environment.assign(expr.name, value)
         return value
 
-    def visitVariableExpr(self, expr: e.Variable) -> Object:
+    def visitVariableExpr(self, expr: e.Variable) -> object:
         return self.environment.get(expr.name)

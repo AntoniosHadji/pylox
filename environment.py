@@ -2,16 +2,16 @@
 from typing import Dict
 
 from errors import LoxRuntimeError
-from java_types import Object, Void
+from java_types import Void
 from token_class import Token
 
 
 class Environment:
     def __init__(self, enclosing=None):
         self.enclosing = enclosing
-        self.values: Dict[str, Object] = {}
+        self.values: Dict[str, object] = {}
 
-    def get(self, name: Token) -> Object:
+    def get(self, name: Token) -> object:
         if name.lexeme in self.values:
             return self.values[name.lexeme]
         if self.enclosing is not None:
@@ -19,12 +19,12 @@ class Environment:
 
         raise LoxRuntimeError(name, "Undefined variable '" + name.lexeme + "'.")
 
-    def define(self, name: str, value: Object) -> Void:
+    def define(self, name: str, value: object) -> Void:
         # allows re-definition on purpose
         self.values[name] = value
         return Void()
 
-    def assign(self, name: Token, value: Object) -> Void:
+    def assign(self, name: Token, value: object) -> Void:
         if name.lexeme in self.values:
             self.values[name.lexeme] = value
             return Void()

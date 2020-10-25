@@ -1,7 +1,4 @@
-from java_types import Object
-
-
 class Return(RuntimeError):
-    def __init__(self, value: Object):
+    def __init__(self, value: object):
         super().__init__()
         self.value = value
