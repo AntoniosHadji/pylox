@@ -14,7 +14,8 @@ if TYPE_CHECKING:
 
 
 class LoxFunction(LoxCallable):
-    def __init__(self, declaration: s.Function):
+    def __init__(self, declaration: s.Function, closure: Environment):
+        self.closure = closure
         self.declaration = declaration
 
     def __str__(self):
@@ -24,7 +25,7 @@ class LoxFunction(LoxCallable):
         return len(self.declaration.params)
 
     def call(self, interpreter: "Interpreter", arguments: List[Object]) -> Object:
-        environment: Environment = Environment(interpreter.globals)
+        environment: Environment = Environment(self.closure)
         for i in range(0, len(self.declaration.params)):
             environment.define(self.declaration.params[i].lexeme, arguments[i])
 

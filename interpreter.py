@@ -183,7 +183,7 @@ class Interpreter(e.Visitor, s.Visitor):
         return Void()
 
     def visitFunctionStmt(self, stmt: s.Function) -> Void:
-        function: LoxFunction = LoxFunction(stmt)
+        function: LoxFunction = LoxFunction(stmt, self.environment)
         self.environment.define(stmt.name.lexeme, function)
         return Null()
 

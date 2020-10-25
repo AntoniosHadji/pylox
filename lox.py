@@ -79,7 +79,7 @@ def runtimeError(error: LoxRuntimeError):
     sys.stderr.write(f"{error}\n")
     if all([hasattr(error, "message"), hasattr(error, "token")]):
         if hasattr(error.token, "line"):
-            sys.stderr.write(f"{error.message}\n[line {error.token.line}]")
+            sys.stderr.write(f"{error.message}\n[line {error.token.line}]\n")
 
     global hadRuntimeError
     hadRuntimeError = True
