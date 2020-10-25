@@ -88,7 +88,7 @@ def defineAst(outputDir: str, baseName: str, types: List[str]):
 
 
 def defineType(writer: TextIO, baseName: str, className: str, fieldList: str):
-    writer.write("@dataclass\n")
+    writer.write("@dataclass(frozen=True)\n")
     writer.write("class " + className + "(" + baseName + "):\n")
 
     # // Store parameters in fields.

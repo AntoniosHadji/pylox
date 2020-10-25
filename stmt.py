@@ -47,7 +47,7 @@ class Visitor(ABC):
         pass
 
 
-@dataclass
+@dataclass(frozen=True)
 class Block(Stmt):
     statements: List[Stmt]
 
@@ -55,7 +55,7 @@ class Block(Stmt):
         return visitor.visitBlockStmt(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Expression(Stmt):
     expression: Expr
 
@@ -63,7 +63,7 @@ class Expression(Stmt):
         return visitor.visitExpressionStmt(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Function(Stmt):
     name: Token
     params: List[Token]
@@ -73,7 +73,7 @@ class Function(Stmt):
         return visitor.visitFunctionStmt(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class If(Stmt):
     condition: Expr
     thenBranch: Stmt
@@ -83,7 +83,7 @@ class If(Stmt):
         return visitor.visitIfStmt(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Print(Stmt):
     expression: Expr
 
@@ -91,7 +91,7 @@ class Print(Stmt):
         return visitor.visitPrintStmt(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Return(Stmt):
     keyword: Token
     value: Expr
@@ -100,7 +100,7 @@ class Return(Stmt):
         return visitor.visitReturnStmt(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Var(Stmt):
     name: Token
     initializer: Expr
@@ -109,7 +109,7 @@ class Var(Stmt):
         return visitor.visitVarStmt(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class While(Stmt):
     condition: Expr
     body: Stmt

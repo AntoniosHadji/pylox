@@ -46,7 +46,7 @@ class Visitor(ABC):
         pass
 
 
-@dataclass
+@dataclass(frozen=True)
 class Assign(Expr):
     name: Token
     value: Expr
@@ -55,7 +55,7 @@ class Assign(Expr):
         return visitor.visitAssignExpr(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Binary(Expr):
     left: Expr
     operator: Token
@@ -65,7 +65,7 @@ class Binary(Expr):
         return visitor.visitBinaryExpr(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Call(Expr):
     callee: Expr
     paren: Token
@@ -75,7 +75,7 @@ class Call(Expr):
         return visitor.visitCallExpr(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Grouping(Expr):
     expression: Expr
 
@@ -83,7 +83,7 @@ class Grouping(Expr):
         return visitor.visitGroupingExpr(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Literal(Expr):
     value: object
 
@@ -91,7 +91,7 @@ class Literal(Expr):
         return visitor.visitLiteralExpr(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Logical(Expr):
     left: Expr
     operator: Token
@@ -101,7 +101,7 @@ class Logical(Expr):
         return visitor.visitLogicalExpr(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Unary(Expr):
     operator: Token
     right: Expr
@@ -110,7 +110,7 @@ class Unary(Expr):
         return visitor.visitUnaryExpr(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Variable(Expr):
     name: Token
 
