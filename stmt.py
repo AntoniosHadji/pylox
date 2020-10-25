@@ -35,6 +35,10 @@ class Visitor(ABC):
         pass
 
     @abstractmethod
+    def visitReturnStmt(self, Stmt):
+        pass
+
+    @abstractmethod
     def visitVarStmt(self, Stmt):
         pass
 
@@ -85,6 +89,15 @@ class Print(Stmt):
 
     def accept(self, visitor):
         return visitor.visitPrintStmt(self)
+
+
+@dataclass
+class Return(Stmt):
+    keyword: Token
+    value: Expr
+
+    def accept(self, visitor):
+        return visitor.visitReturnStmt(self)
 
 
 @dataclass

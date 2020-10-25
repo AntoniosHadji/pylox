@@ -45,10 +45,13 @@ class Parser:
             return self.ifStatement()
         if self.match(TokenType.PRINT):
             return self.printStatement()
+        if self.match(TokenType.RETURN):
+            return self.returnStatement()
         if self.match(TokenType.WHILE):
             return self.whileStatement()
         if self.match(TokenType.LEFT_BRACE):
             return s.Block(self.block())
+
         return self.expressionStatement()
 
     def forStatement(self) -> s.Stmt:
@@ -103,6 +106,15 @@ class Parser:
         value: e.Expr = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
         return s.Print(value)
+
+    def returnStatement(self) -> s.Stmt:
+        keyword: Token = self.previous()
+        value: e.Expr = None
+        if not self.check(TokenType.SEMICOLON):
+            value = self.expression()
+
+        self.consume(TokenType.SEMICOLON, "Expect ';' after return value.")
+        return s.Return(keyword, value)
 
     def varDeclaration(self) -> s.Stmt:
         name: Token = self.consume(TokenType.IDENTIFIER, "Expect variable name.")

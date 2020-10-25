@@ -9,6 +9,7 @@ from global_functions import Clock
 from java_types import Null, Object, Void
 from loxcallable import LoxCallable
 from loxfunction import LoxFunction
+from return_class import Return
 from token_class import Token
 from token_type import TokenType
 
@@ -198,6 +199,13 @@ class Interpreter(e.Visitor, s.Visitor):
         value: Object = self.evaluate(stmt.expression)
         sys.stdout.write(self.stringify(value) + "\n")
         return Void()
+
+    def visitReturnStmt(self, stmt: Return) -> Void:
+        value: Object = Null()
+        if stmt.value is not None:
+            value = self.evaluate(stmt.value)
+
+        raise Return(value)
 
     def visitVarStmt(self, stmt: s.Var) -> Void:
         value: Object = Object()

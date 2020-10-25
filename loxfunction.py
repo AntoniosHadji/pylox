@@ -6,6 +6,7 @@ import stmt as s
 from environment import Environment
 from java_types import Null, Object
 from loxcallable import LoxCallable
+from return_class import Return
 
 # prevent circular import issues
 if TYPE_CHECKING:
@@ -27,5 +28,9 @@ class LoxFunction(LoxCallable):
         for i in range(0, len(self.declaration.params)):
             environment.define(self.declaration.params[i].lexeme, arguments[i])
 
-        interpreter.executeBlock(self.declaration.body, environment)
+        try:
+            interpreter.executeBlock(self.declaration.body, environment)
+        except Return as returnValue:
+            return returnValue.value
+
         return Null()

@@ -1,3 +1,14 @@
+http://craftinginterpreters.com/functions.html#return-statements
+statement      → exprStmt
+               | forStmt
+               | ifStmt
+               | printStmt
+               | returnStmt
+               | whileStmt
+               | block ;
+
+returnStmt     → "return" expression? ";" ;
+
 http://craftinginterpreters.com/functions.html#function-declarations
 declaration    → funDecl
                | varDecl
