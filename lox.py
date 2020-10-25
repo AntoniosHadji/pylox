@@ -57,10 +57,11 @@ def run(line: str):
     if hadError:
         return
 
-    for t in tokens:
-        print(t)
-    for s in statements:
-        print(s)
+    if os.environ.get("DEBUG"):
+        for t in tokens:
+            print(t)
+        for s in statements:
+            print(s)
     Interpreter(runtimeError).interpret(statements)
 
 
