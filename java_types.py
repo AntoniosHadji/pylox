@@ -14,3 +14,6 @@ class Object:
 class Null(Void, Expr, Stmt):
     def accept(self, visitor):
         return None
+
+    def __bool__(self):
+        return False
