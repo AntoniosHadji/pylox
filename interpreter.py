@@ -66,7 +66,7 @@ class Interpreter(e.Visitor, s.Visitor):
         return None
 
     def visitCallExpr(self, expr: e.Call) -> object:
-        function: object = self.evaluate(expr.callee)
+        function: LoxCallable = self.evaluate(expr.callee)
 
         arguments: List[object] = []
         for argument in expr.arguments:
@@ -74,6 +74,7 @@ class Interpreter(e.Visitor, s.Visitor):
 
         # requires cast in java
         # http://craftinginterpreters.com/functions.html#interpreting-function-calls
+        # or use hasattr to test that is callable by having call attr
         if not isinstance(function, LoxCallable):
             raise LoxRuntimeError(expr.paren, "Can only call functions and classes.")
 
