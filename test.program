@@ -1,0 +1,10 @@
+print "start program";
+var x = 1;
+print x;
+
+{
+
+var y = 2;
+print y;
+print x;
+}

@@ -1,12 +1,11 @@
 import sys
-from typing import List, SupportsFloat
+from typing import List, Union
 
 import expr as e
 import stmt as s
 from environment import Environment
 from errors import LoxRuntimeError
 from global_functions import Clock
-from java_types import Null, Void
 from loxcallable import LoxCallable
 from loxfunction import LoxFunction
 from return_class import Return
@@ -29,8 +28,8 @@ class Interpreter(e.Visitor, s.Visitor):
             self.eh(error)
 
     def visitBinaryExpr(self, expr: e.Binary) -> object:  # noqa: C901
-        left: SupportsFloat = self.evaluate(expr.left)
-        right: SupportsFloat = self.evaluate(expr.right)
+        left: Union[float, str] = self.evaluate(expr.left)
+        right: Union[float, str] = self.evaluate(expr.right)
 
         if expr.operator.ttype == TokenType.GREATER:
             self.checkNumberOperands(expr.operator, left, right)
@@ -105,7 +104,7 @@ class Interpreter(e.Visitor, s.Visitor):
         return self.evaluate(expr.expression)
 
     def visitUnaryExpr(self, expr: e.Unary) -> object:
-        right: SupportsFloat = self.evaluate(expr.right)
+        right: Union[float, str] = self.evaluate(expr.right)
 
         if expr.operator.ttype == TokenType.MINUS:
             self.checkNumberOperand(expr.operator, right)
@@ -175,52 +174,46 @@ class Interpreter(e.Visitor, s.Visitor):
         finally:
             self.environment = previous
 
-    def visitBlockStmt(self, stmt: s.Block) -> Void:
+    def visitBlockStmt(self, stmt: s.Block):
         self.executeBlock(stmt.statements, Environment(self.environment))
-        return Void()
 
-    def visitExpressionStmt(self, stmt: s.Expression) -> Void:
+    def visitExpressionStmt(self, stmt: s.Expression):
         self.evaluate(stmt.expression)
-        return Void()
 
-    def visitFunctionStmt(self, stmt: s.Function) -> Void:
+    def visitFunctionStmt(self, stmt: s.Function):
         function: LoxFunction = LoxFunction(stmt, self.environment)
         self.environment.define(stmt.name.lexeme, function)
-        return Null()
+        return None
 
-    def visitIfStmt(self, stmt: s.If) -> Void:
+    def visitIfStmt(self, stmt: s.If):
         if self.isTruthy(self.evaluate(stmt.condition)):
             self.execute(stmt.thenBranch)
         elif stmt.elseBranch is not None:
             self.execute(stmt.elseBranch)
 
-        return Void()
-
-    def visitPrintStmt(self, stmt: s.Print) -> Void:
+    def visitPrintStmt(self, stmt: s.Print):
         value: object = self.evaluate(stmt.expression)
         sys.stdout.write(self.stringify(value) + "\n")
-        return Void()
 
-    def visitReturnStmt(self, stmt: Return) -> Void:
-        value: object = Null()
+    def visitReturnStmt(self, stmt: s.Return):
+        value: object = None
         if stmt.value is not None:
             value = self.evaluate(stmt.value)
 
         raise Return(value)
 
-    def visitVarStmt(self, stmt: s.Var) -> Void:
+    def visitVarStmt(self, stmt: s.Var):
         value: object = object()
         if stmt.initializer is not None:
             value = self.evaluate(stmt.initializer)
 
         self.environment.define(stmt.name.lexeme, value)
-        return Void()
 
-    def visitWhileStmt(self, stmt: s.While) -> Void:
+    def visitWhileStmt(self, stmt: s.While):
         while self.isTruthy(self.evaluate(stmt.condition)):
             self.execute(stmt.body)
 
-        return Null()
+        return None
 
     def visitAssignExpr(self, expr: e.Assign) -> object:
         value: object = self.evaluate(expr.value)

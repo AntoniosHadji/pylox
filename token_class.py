@@ -11,4 +11,4 @@ class Token:
     line: int = 0
 
     def __repr__(self):
-        return f"{self.ttype:<22}:\t{self.lexeme}\t{self.literal}\t{self.line}"
+        return f"Token[{self.ttype}〔{self.lexeme}〕Lit:〔{self.literal}〕@{self.line}]"  # noqa: E501

@@ -2,7 +2,6 @@ from typing import Callable, List
 
 import expr as e
 import stmt as s
-from java_types import Null
 from token_class import Token
 from token_type import TokenType
 
@@ -56,21 +55,21 @@ class Parser:
 
     def forStatement(self) -> s.Stmt:
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.")
-        initializer: s.Stmt
+
         if self.match(TokenType.SEMICOLON):
-            initializer = Null()
+            initializer = None
         elif self.match(TokenType.VAR):
             initializer = self.varDeclaration()
         else:
             initializer = self.expressionStatement()
 
-        condition: e.Expr = Null()
+        condition = None
         if not self.check(TokenType.SEMICOLON):
             condition = self.expression()
 
         self.consume(TokenType.SEMICOLON, "Expect ';' after loop condition.")
 
-        increment: e.Expr = Null()
+        increment = None
         if not self.check(TokenType.RIGHT_PAREN):
             increment = self.expression()
 
@@ -78,14 +77,17 @@ class Parser:
 
         body: s.Stmt = self.statement()
 
-        if not isinstance(increment, Null):
+        # not null
+        if increment:
             body = s.Block([body, s.Expression(increment)])
 
-        if isinstance(condition, Null):
+        # is null
+        if condition is None:
             condition = e.Literal(True)
         body = s.While(condition, body)
 
-        if not isinstance(initializer, Null):
+        # not null
+        if initializer:
             body = s.Block([initializer, body])
 
         return body

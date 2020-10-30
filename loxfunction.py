@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Any, List, Optional
 
 import stmt as s
 from environment import Environment
-from java_types import Null
 from loxcallable import LoxCallable
 from return_class import Return
 
@@ -24,7 +23,7 @@ class LoxFunction(LoxCallable):
     def arity(self) -> int:
         return len(self.declaration.params)
 
-    def call(self, interpreter: "Interpreter", arguments: List[object]) -> object:
+    def call(self, interpreter: "Interpreter", arguments: Optional[List[Any]]) -> Any:
         environment: Environment = Environment(self.closure)
         for i in range(0, len(self.declaration.params)):
             environment.define(self.declaration.params[i].lexeme, arguments[i])
@@ -34,4 +33,4 @@ class LoxFunction(LoxCallable):
         except Return as returnValue:
             return returnValue.value
 
-        return Null()
+        return None

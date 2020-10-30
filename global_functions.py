@@ -1,5 +1,7 @@
 import time
 
+import ipdb
+
 from loxcallable import LoxCallable
 
 
@@ -12,3 +14,14 @@ class Clock(LoxCallable):
 
     def __str__(self):
         return "<native_fn:Clock>"
+
+
+class Debug(LoxCallable):
+    def call(self):
+        return ipdb.set_trace()
+
+    def arity(self):
+        return 0
+
+    def __str__(self):
+        return "<native_fn:Debug>"

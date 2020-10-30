@@ -81,10 +81,10 @@ counter(); // "1".
 counter(); // "2".
 
 print "Test for Bug CH11 ==============================================";
-print "expect:";
+print "EXPECT:";
 print "global";
 print "global";
-print "output:";
+print "OUTPUT:";
 var a = "global";
 {
   fun showA() {
