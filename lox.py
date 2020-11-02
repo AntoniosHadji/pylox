@@ -1,14 +1,16 @@
 import os
-import pdb
 import sys
 
 # local parser.py, also exists in Python library. (deprecated)
 from parser import Parser
 from typing import List
 
+import ipdb
+
 import stmt
 from errors import LoxRuntimeError
 from interpreter import Interpreter
+from resolver import Resolver
 from scanner import Scanner
 from token_class import Token
 from token_type import TokenType
@@ -46,8 +48,6 @@ def runPrompt():
 
 
 def run(line: str):
-    if os.environ.get("DEBUG"):
-        pdb.set_trace()
     scanner: Scanner = Scanner(line, error_scan)
     tokens: List[Token] = scanner.scanTokens()
     parser: Parser = Parser(tokens, error_parse)
@@ -57,12 +57,24 @@ def run(line: str):
     if hadError:
         return
 
+    interpreter: Interpreter = Interpreter(runtimeError)
+    resolver: Resolver = Resolver(interpreter, error_scan)
+    resolver.resolve(statements)
+
+    # // Stop if there was a resolution error.
+    if hadError:
+        return
+
     if os.environ.get("DEBUG"):
+        print("**TOKENS**")
         for t in tokens:
             print(t)
+        print("**STATEMENTS**")
         for s in statements:
             print(s)
-    Interpreter(runtimeError).interpret(statements)
+        ipdb.set_trace()
+
+    interpreter.interpret(statements)
 
 
 def error_scan(line: int, message: str) -> None:
@@ -96,11 +108,10 @@ if __name__ == "__main__":
 
     args = sys.argv
     # remove script name
-    args.pop(0)
-    if len(args) > 1:
+    if len(args) > 2:
         sys.stdout.write("Usage: jlox [script]\n")
         sys.exit(64)
-    elif len(args) == 1:
-        runFile(args[0])
+    elif len(args) == 2:
+        runFile(args[1])
     else:
         runPrompt()
