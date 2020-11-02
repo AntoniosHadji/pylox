@@ -27,6 +27,12 @@ class ASTPrinter(Visitor):
     def visitVariableExpr(self, expr):
         return repr(expr)
 
+    def visitCallExpr(self, expr):
+        return repr(expr)
+
+    def visitLogicalExpr(self, expr):
+        return repr(expr)
+
 
 if __name__ == "__main__":
 

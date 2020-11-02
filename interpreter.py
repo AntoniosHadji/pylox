@@ -1,5 +1,5 @@
 import sys
-from typing import List, Union
+from typing import Dict, List, Optional, Union
 
 import expr as e
 import stmt as s
@@ -17,8 +17,9 @@ class Interpreter(e.Visitor, s.Visitor):
     def __init__(self, error_handler):
         self.globals: Environment = Environment()
         self.environment: Environment = self.globals
+        self.locals: Dict[e.Expr, int] = dict()
         self.eh = error_handler
-        self.globals.define("clock", Clock)
+        self.globals.define("clock", Clock())
 
     def interpret(self, statements: List[s.Stmt]):
         try:
@@ -43,7 +44,6 @@ class Interpreter(e.Visitor, s.Visitor):
         if expr.operator.ttype == TokenType.LESS_EQUAL:
             self.checkNumberOperands(expr.operator, left, right)
             return float(left) <= float(right)
-
         if expr.operator.ttype == TokenType.MINUS:
             self.checkNumberOperands(expr.operator, left, right)
             return float(left) - float(right)
@@ -53,6 +53,7 @@ class Interpreter(e.Visitor, s.Visitor):
             if isinstance(left, str) and isinstance(right, str):
                 return str(left) + str(right)
             # neither if statement returned
+            print(f"DEBUG: Left: ({type(left)}), Right: ({type(right)})")
             raise LoxRuntimeError(expr.operator, "+ expects two strings or two numbers")
         if expr.operator.ttype == TokenType.SLASH:
             self.checkNumberOperands(expr.operator, left, right)
@@ -73,7 +74,7 @@ class Interpreter(e.Visitor, s.Visitor):
 
         # requires cast in java
         # http://craftinginterpreters.com/functions.html#interpreting-function-calls
-        # or use hasattr to test that is callable by having call attr
+        print(f"DEBUG: Function: ({function}), Type: ({type(function)})")
         if not isinstance(function, LoxCallable):
             raise LoxRuntimeError(expr.paren, "Can only call functions and classes.")
 
@@ -125,6 +126,7 @@ class Interpreter(e.Visitor, s.Visitor):
         if isinstance(left, float) and isinstance(right, float):
             return
 
+        print(f"DEBUG: Left: ({type(left)}), Right: ({type(right)})")
         raise RuntimeError(operator, "Operands must be numbers.")
 
     def isTruthy(self, o: object) -> bool:
@@ -163,6 +165,9 @@ class Interpreter(e.Visitor, s.Visitor):
     def execute(self, stmt: s.Stmt):
         stmt.accept(self)
 
+    def resolve(self, expr: e.Expr, depth: int):  # type java void
+        self.locals.update({expr: depth})
+
     def executeBlock(self, statements: List[s.Stmt], environment: Environment):
         previous: Environment = self.environment
         try:
@@ -183,7 +188,6 @@ class Interpreter(e.Visitor, s.Visitor):
     def visitFunctionStmt(self, stmt: s.Function):
         function: LoxFunction = LoxFunction(stmt, self.environment)
         self.environment.define(stmt.name.lexeme, function)
-        return None
 
     def visitIfStmt(self, stmt: s.If):
         if self.isTruthy(self.evaluate(stmt.condition)):
@@ -213,13 +217,25 @@ class Interpreter(e.Visitor, s.Visitor):
         while self.isTruthy(self.evaluate(stmt.condition)):
             self.execute(stmt.body)
 
-        return None
-
     def visitAssignExpr(self, expr: e.Assign) -> object:
         value: object = self.evaluate(expr.value)
 
-        self.environment.assign(expr.name, value)
+        distance: Optional[int] = self.locals.get(expr)
+        # not null, distance is expected to be 0 for inner most scope
+        if distance is not None:
+            self.environment.assignAt(distance, expr.name, value)
+        else:
+            self.globals.assign(expr.name, value)
+
         return value
 
     def visitVariableExpr(self, expr: e.Variable) -> object:
-        return self.environment.get(expr.name)
+        return self._lookUpVariable(expr.name, expr)
+
+    def _lookUpVariable(self, name: Token, expr: e.Expr) -> object:
+        distance: Optional[int] = self.locals.get(expr)
+        # not null, distance is expected to be 0 for inner most scope
+        if distance is not None:
+            return self.environment.getAt(distance, name.lexeme)
+        else:
+            return self.globals.get(name)
