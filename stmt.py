@@ -1,9 +1,11 @@
 # AUTO-GENERATED: do not edit.  look at ./tool/generate_ast.py
-from abc import ABC, abstractmethod
+from __future__ import annotations  # define out of order
 
-from token_class import Token
+from abc import ABC, abstractmethod
 from typing import List
+
 from expr import Expr
+from token_class import Token
 
 
 class Stmt(ABC):
@@ -15,6 +17,10 @@ class Stmt(ABC):
 class Visitor(ABC):
     @abstractmethod
     def visitBlockStmt(self, Stmt):
+        pass
+
+    @abstractmethod
+    def visitClassStmt(self, Stmt):
         pass
 
     @abstractmethod
@@ -52,6 +58,15 @@ class Block(Stmt):
 
     def accept(self, visitor):
         return visitor.visitBlockStmt(self)
+
+
+class Class(Stmt):
+    def __init__(self, name: Token, methods: List[Function]):
+        self.name: Token = name
+        self.methods: List[Function] = methods
+
+    def accept(self, visitor):
+        return visitor.visitClassStmt(self)
 
 
 class Expression(Stmt):

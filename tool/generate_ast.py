@@ -3,6 +3,7 @@ import sys
 from typing import List, TextIO
 
 import black
+import isort
 
 
 def main():
@@ -35,6 +36,7 @@ def main():
         "Stmt",
         [
             "Block      : List[Stmt] statements",
+            "Class      : Token name, List[Function] methods",  # stmt.Function
             "Expression : Expr expression",
             "Function   : Token name, List[Token] params, List[Stmt] body",
             "If         : Expr condition, Stmt thenBranch, Stmt elseBranch",
@@ -54,12 +56,12 @@ def defineAst(outputDir: str, baseName: str, types: List[str]):
         # imports
         f.write("# AUTO-GENERATED: do not edit.  look at ./tool/generate_ast.py\n")
         # f.write("from dataclasses import dataclass\n")
+        if baseName.lower() == "stmt":
+            f.write("from __future__ import annotations  # define out of order\n")
+            f.write("from expr import Expr\n")
         f.write("from abc import ABC, abstractmethod\n")
-        f.write("\n")
         f.write("from token_class import Token\n")
         f.write("from typing import List\n")
-        if baseName.lower() == "stmt":
-            f.write("from expr import Expr\n")
         f.write("\n\n")
 
         # base class for AST classes
@@ -124,6 +126,8 @@ if __name__ == "__main__":
             write_back=black.WriteBack.YES,
         )
     )
+    print(isort.file(p))
+
     p = pathlib.Path(__file__).resolve().parent.parent / "stmt.py"
     print(p)
     print(
@@ -134,3 +138,4 @@ if __name__ == "__main__":
             write_back=black.WriteBack.YES,
         )
     )
+    print(isort.file(p))

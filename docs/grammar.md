@@ -1,3 +1,15 @@
+http://craftinginterpreters.com/classes.html#class-declarations
+declaration    → classDecl
+               | funDecl
+               | varDecl
+               | statement ;
+
+classDecl      → "class" IDENTIFIER "{" function* "}" ;
+The new classDecl rule relies on the function rule we defined earlier. To refresh your memory:
+
+function       → IDENTIFIER "(" parameters? ")" block ;
+parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
+
 http://craftinginterpreters.com/functions.html#return-statements
 statement      → exprStmt
                | forStmt

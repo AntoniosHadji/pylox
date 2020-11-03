@@ -1,8 +1,8 @@
 # AUTO-GENERATED: do not edit.  look at ./tool/generate_ast.py
 from abc import ABC, abstractmethod
+from typing import List
 
 from token_class import Token
-from typing import List
 
 
 class Expr(ABC):
