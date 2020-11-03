@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 
@@ -105,6 +106,14 @@ def report(line: int, where: str, message: str):
 
 
 if __name__ == "__main__":
+    if os.environ.get("DEBUG"):
+        LEVEL = logging.DEBUG
+    else:
+        LEVEL = logging.INFO
+
+    logging.basicConfig(filename="lox.log", level=LEVEL)
+    log = logging.getLogger(__name__)
+    log.info("==============start new execution=====================")
 
     args = sys.argv
     # remove script name

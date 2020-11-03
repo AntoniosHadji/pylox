@@ -1,3 +1,4 @@
+import logging
 import sys
 from typing import Dict, List, Optional, Union
 
@@ -11,6 +12,8 @@ from loxfunction import LoxFunction
 from return_class import Return
 from token_class import Token
 from token_type import TokenType
+
+log = logging.getLogger(__name__)
 
 
 class Interpreter(e.Visitor, s.Visitor):
@@ -53,7 +56,6 @@ class Interpreter(e.Visitor, s.Visitor):
             if isinstance(left, str) and isinstance(right, str):
                 return str(left) + str(right)
             # neither if statement returned
-            print(f"DEBUG: Left: ({type(left)}), Right: ({type(right)})")
             raise LoxRuntimeError(expr.operator, "+ expects two strings or two numbers")
         if expr.operator.ttype == TokenType.SLASH:
             self.checkNumberOperands(expr.operator, left, right)
@@ -74,7 +76,6 @@ class Interpreter(e.Visitor, s.Visitor):
 
         # requires cast in java
         # http://craftinginterpreters.com/functions.html#interpreting-function-calls
-        print(f"DEBUG: Function: ({function}), Type: ({type(function)})")
         if not isinstance(function, LoxCallable):
             raise LoxRuntimeError(expr.paren, "Can only call functions and classes.")
 
@@ -126,7 +127,6 @@ class Interpreter(e.Visitor, s.Visitor):
         if isinstance(left, float) and isinstance(right, float):
             return
 
-        print(f"DEBUG: Left: ({type(left)}), Right: ({type(right)})")
         raise RuntimeError(operator, "Operands must be numbers.")
 
     def isTruthy(self, o: object) -> bool:
@@ -166,6 +166,8 @@ class Interpreter(e.Visitor, s.Visitor):
         stmt.accept(self)
 
     def resolve(self, expr: e.Expr, depth: int):  # type java void
+        if all([expr, depth]):
+            log.debug("resolve[%d]: (%s)->(%d) ", id(expr), expr, depth)
         self.locals.update({expr: depth})
 
     def executeBlock(self, statements: List[s.Stmt], environment: Environment):
@@ -221,6 +223,8 @@ class Interpreter(e.Visitor, s.Visitor):
         value: object = self.evaluate(expr.value)
 
         distance: Optional[int] = self.locals.get(expr)
+        if all([expr, distance]):
+            log.debug("Assign[%d]: (%s)->(%d)", id(expr), expr, distance)
         # not null, distance is expected to be 0 for inner most scope
         if distance is not None:
             self.environment.assignAt(distance, expr.name, value)
@@ -234,6 +238,8 @@ class Interpreter(e.Visitor, s.Visitor):
 
     def _lookUpVariable(self, name: Token, expr: e.Expr) -> object:
         distance: Optional[int] = self.locals.get(expr)
+        if all([expr, distance]):
+            log.debug("Variable[%d]: (%s)->(%d)", id(expr), expr, distance)
         # not null, distance is expected to be 0 for inner most scope
         if distance is not None:
             return self.environment.getAt(distance, name.lexeme)
