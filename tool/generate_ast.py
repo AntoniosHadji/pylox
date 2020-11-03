@@ -53,7 +53,7 @@ def defineAst(outputDir: str, baseName: str, types: List[str]):
     with open(path, "w") as f:
         # imports
         f.write("# AUTO-GENERATED: do not edit.  look at ./tool/generate_ast.py\n")
-        f.write("from dataclasses import dataclass\n")
+        # f.write("from dataclasses import dataclass\n")
         f.write("from abc import ABC, abstractmethod\n")
         f.write("\n")
         f.write("from token_class import Token\n")
@@ -88,15 +88,23 @@ def defineAst(outputDir: str, baseName: str, types: List[str]):
 
 
 def defineType(writer: TextIO, baseName: str, className: str, fieldList: str):
-    writer.write("@dataclass(frozen=True)\n")
+    # writer.write("@dataclass(frozen=True)\n")
     writer.write("class " + className + "(" + baseName + "):\n")
 
     # // Store parameters in fields.
     fields: List[str] = fieldList.split(", ")
+    writer.write("    def __init__(self")
     for field in fields:
         name: str = field.split(" ")[1]
         field_type: str = field.split(" ")[0]
-        writer.write(f"    {name}: {field_type}\n")
+        # writer.write(f"    {name}: {field_type}\n")
+        writer.write(f", {name}: {field_type}")
+    writer.write("):\n")
+    for field in fields:
+        name: str = field.split(" ")[1]
+        field_type: str = field.split(" ")[0]
+        writer.write(f"        self.{name}: {field_type} = {name}\n")
+
     writer.write("\n")
     writer.write("    def accept(self, visitor):\n")
     writer.write(f"        return visitor.visit{className}{baseName}(self)\n")
