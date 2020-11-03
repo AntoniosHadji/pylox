@@ -6,7 +6,7 @@ from loxcallable import LoxCallable
 
 
 class Clock(LoxCallable):
-    def call(self):
+    def call(self, interpreter, arguments):
         return time.time()
 
     def arity(self):
@@ -17,7 +17,7 @@ class Clock(LoxCallable):
 
 
 class Debug(LoxCallable):
-    def call(self):
+    def call(self, interpreter, arguments):
         return ipdb.set_trace()
 
     def arity(self):

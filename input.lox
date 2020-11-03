@@ -48,22 +48,29 @@ print "for loop:";
 for (var x=0; x<10; x = x + 1)
   print x;
 
-print "function definition and execution";
+print "function definition and execution =================================";
 fun sayHi(first, last) {
   print "Hi, " + first + " " + last + "!";
 }
 
 sayHi("Dear", "Reader");
 
+print "native functions: clock ===========================================";
+print clock();
+
 print "function returns: fib function in lox =============================";
 fun fib(n) {
   if (n <= 1) return n;
   return fib(n - 2) + fib(n - 1);
 }
-
+var start = clock();
 for (var i = 0; i < 24; i = i + 1) {
   print fib(i);
 }
+var end = clock();
+print "24th fib number took";
+print end - start;
+print "seconds";
 
 print "local functions and closures =====================================";
 fun makeCounter() {
@@ -95,3 +102,8 @@ var a = "global";
   var a = "block";
   showA();
 }
+
+// this may not work for debugging lox code
+// print "enter debug mode.";
+// debug();
+// print "exited debug mode.";

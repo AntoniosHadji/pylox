@@ -6,7 +6,7 @@ import expr as e
 import stmt as s
 from environment import Environment
 from errors import LoxRuntimeError
-from global_functions import Clock
+from global_functions import Clock, Debug
 from loxcallable import LoxCallable
 from loxfunction import LoxFunction
 from return_class import Return
@@ -23,6 +23,7 @@ class Interpreter(e.Visitor, s.Visitor):
         self.locals: Dict[e.Expr, int] = dict()
         self.eh = error_handler
         self.globals.define("clock", Clock())
+        self.globals.define("debug", Debug())
 
     def interpret(self, statements: List[s.Stmt]):
         try:
