@@ -1,5 +1,4 @@
 # AUTO-GENERATED: do not edit.  look at ./tool/generate_ast.py
-from dataclasses import dataclass
 from abc import ABC, abstractmethod
 
 from token_class import Token
@@ -47,72 +46,72 @@ class Visitor(ABC):
         pass
 
 
-@dataclass(frozen=True)
 class Block(Stmt):
-    statements: List[Stmt]
+    def __init__(self, statements: List[Stmt]):
+        self.statements: List[Stmt] = statements
 
     def accept(self, visitor):
         return visitor.visitBlockStmt(self)
 
 
-@dataclass(frozen=True)
 class Expression(Stmt):
-    expression: Expr
+    def __init__(self, expression: Expr):
+        self.expression: Expr = expression
 
     def accept(self, visitor):
         return visitor.visitExpressionStmt(self)
 
 
-@dataclass(frozen=True)
 class Function(Stmt):
-    name: Token
-    params: List[Token]
-    body: List[Stmt]
+    def __init__(self, name: Token, params: List[Token], body: List[Stmt]):
+        self.name: Token = name
+        self.params: List[Token] = params
+        self.body: List[Stmt] = body
 
     def accept(self, visitor):
         return visitor.visitFunctionStmt(self)
 
 
-@dataclass(frozen=True)
 class If(Stmt):
-    condition: Expr
-    thenBranch: Stmt
-    elseBranch: Stmt
+    def __init__(self, condition: Expr, thenBranch: Stmt, elseBranch: Stmt):
+        self.condition: Expr = condition
+        self.thenBranch: Stmt = thenBranch
+        self.elseBranch: Stmt = elseBranch
 
     def accept(self, visitor):
         return visitor.visitIfStmt(self)
 
 
-@dataclass(frozen=True)
 class Print(Stmt):
-    expression: Expr
+    def __init__(self, expression: Expr):
+        self.expression: Expr = expression
 
     def accept(self, visitor):
         return visitor.visitPrintStmt(self)
 
 
-@dataclass(frozen=True)
 class Return(Stmt):
-    keyword: Token
-    value: Expr
+    def __init__(self, keyword: Token, value: Expr):
+        self.keyword: Token = keyword
+        self.value: Expr = value
 
     def accept(self, visitor):
         return visitor.visitReturnStmt(self)
 
 
-@dataclass(frozen=True)
 class Var(Stmt):
-    name: Token
-    initializer: Expr
+    def __init__(self, name: Token, initializer: Expr):
+        self.name: Token = name
+        self.initializer: Expr = initializer
 
     def accept(self, visitor):
         return visitor.visitVarStmt(self)
 
 
-@dataclass(frozen=True)
 class While(Stmt):
-    condition: Expr
-    body: Stmt
+    def __init__(self, condition: Expr, body: Stmt):
+        self.condition: Expr = condition
+        self.body: Stmt = body
 
     def accept(self, visitor):
         return visitor.visitWhileStmt(self)

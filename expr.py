@@ -1,5 +1,4 @@
 # AUTO-GENERATED: do not edit.  look at ./tool/generate_ast.py
-from dataclasses import dataclass
 from abc import ABC, abstractmethod
 
 from token_class import Token
@@ -46,73 +45,73 @@ class Visitor(ABC):
         pass
 
 
-@dataclass(frozen=True)
 class Assign(Expr):
-    name: Token
-    value: Expr
+    def __init__(self, name: Token, value: Expr):
+        self.name: Token = name
+        self.value: Expr = value
 
     def accept(self, visitor):
         return visitor.visitAssignExpr(self)
 
 
-@dataclass(frozen=True)
 class Binary(Expr):
-    left: Expr
-    operator: Token
-    right: Expr
+    def __init__(self, left: Expr, operator: Token, right: Expr):
+        self.left: Expr = left
+        self.operator: Token = operator
+        self.right: Expr = right
 
     def accept(self, visitor):
         return visitor.visitBinaryExpr(self)
 
 
-@dataclass(frozen=True)
 class Call(Expr):
-    callee: Expr
-    paren: Token
-    arguments: List[Expr]
+    def __init__(self, callee: Expr, paren: Token, arguments: List[Expr]):
+        self.callee: Expr = callee
+        self.paren: Token = paren
+        self.arguments: List[Expr] = arguments
 
     def accept(self, visitor):
         return visitor.visitCallExpr(self)
 
 
-@dataclass(frozen=True)
 class Grouping(Expr):
-    expression: Expr
+    def __init__(self, expression: Expr):
+        self.expression: Expr = expression
 
     def accept(self, visitor):
         return visitor.visitGroupingExpr(self)
 
 
-@dataclass(frozen=True)
 class Literal(Expr):
-    value: object
+    def __init__(self, value: object):
+        self.value: object = value
 
     def accept(self, visitor):
         return visitor.visitLiteralExpr(self)
 
 
-@dataclass(frozen=True)
 class Logical(Expr):
-    left: Expr
-    operator: Token
-    right: Expr
+    def __init__(self, left: Expr, operator: Token, right: Expr):
+        self.left: Expr = left
+        self.operator: Token = operator
+        self.right: Expr = right
 
     def accept(self, visitor):
         return visitor.visitLogicalExpr(self)
 
 
-@dataclass(frozen=True)
 class Unary(Expr):
-    operator: Token
-    right: Expr
+    def __init__(self, operator: Token, right: Expr):
+        self.operator: Token = operator
+        self.right: Expr = right
 
     def accept(self, visitor):
         return visitor.visitUnaryExpr(self)
 
 
-@dataclass(frozen=True)
 class Variable(Expr):
-    name: Token
+    def __init__(self, name: Token):
+        self.name: Token = name
 
     def accept(self, visitor):
         return visitor.visitVariableExpr(self)
