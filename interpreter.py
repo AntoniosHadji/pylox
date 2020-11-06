@@ -215,6 +215,9 @@ class Interpreter(e.Visitor, s.Visitor):
         self.environment.assign(stmt.name, klass)
         return None
 
+    def visitThisExpr(self, expr: e.This) -> Any:
+        return self._lookUpVariable(expr.keyword, expr)
+
     def visitExpressionStmt(self, stmt: s.Expression):
         self.evaluate(stmt.expression)
 

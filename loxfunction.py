@@ -10,6 +10,7 @@ from return_class import Return
 # prevent circular import issues
 if TYPE_CHECKING:
     from interpreter import Interpreter
+    from loxclass import LoxInstance
 
 
 class LoxFunction(LoxCallable):
@@ -19,6 +20,11 @@ class LoxFunction(LoxCallable):
 
     def __str__(self):
         return f"<fn {self.declaration.name.lexeme}>"
+
+    def bind(self, instance: LoxInstance) -> LoxFunction:
+        environment: Environment = Environment(self.closure)
+        environment.define("this", instance)
+        return LoxFunction(self.declaration, environment)
 
     def arity(self) -> int:
         return len(self.declaration.params)

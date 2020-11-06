@@ -45,6 +45,10 @@ class Visitor(ABC):
         pass
 
     @abstractmethod
+    def visitThisExpr(self, Expr):
+        pass
+
+    @abstractmethod
     def visitUnaryExpr(self, Expr):
         pass
 
@@ -125,6 +129,14 @@ class Set(Expr):
 
     def accept(self, visitor):
         return visitor.visitSetExpr(self)
+
+
+class This(Expr):
+    def __init__(self, keyword: Token):
+        self.keyword: Token = keyword
+
+    def accept(self, visitor):
+        return visitor.visitThisExpr(self)
 
 
 class Unary(Expr):

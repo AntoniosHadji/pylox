@@ -17,11 +17,17 @@ class FunctionType(Enum):
     METHOD = auto()
 
 
+class ClassType(Enum):
+    NONE = auto()
+    CLASS = auto()
+
+
 class Resolver(e.Visitor, s.Visitor):
     def __init__(self, interpreter: "Interpreter", error_function: Callable):
         self.interpreter = interpreter
         self.scopes: deque = deque()
         self.current_function: FunctionType = FunctionType.NONE
+        self.currentClass: ClassType = ClassType.NONE
         self.eh = error_function
 
     def resolve(self, statements: List[s.Stmt]):  # type java void
@@ -36,13 +42,21 @@ class Resolver(e.Visitor, s.Visitor):
         return None
 
     def visitClassStmt(self, stmt: s.Class):
+        enclosingClass: ClassType = self.currentClass
+        self.currentClass = ClassType.CLASS
+
         self._declare(stmt.name)
         self._define(stmt.name)
+
+        self._beginScope()
+        self.scopes[len(self.scopes) - 1].update({"this": True})
 
         for method in stmt.methods:
             declaration: FunctionType = FunctionType.METHOD
             self._resolveFunction(method, declaration)
 
+        self._endScope()
+        self.currentClass = enclosingClass
         return None
 
     def visitExpressionStmt(self, stmt: s.Expression):
@@ -123,6 +137,14 @@ class Resolver(e.Visitor, s.Visitor):
     def visitSetExpr(self, expr: e.Set):
         self._resolve(expr.value)
         self._resolve(expr.object)
+        return None
+
+    def visitThisExpr(self, expr: e.This):
+        if self.currentClass == ClassType.NONE:
+            self.eh(expr.keyword, "Can't use 'this' outside of a class.")
+            return None
+
+        self._resolveLocal(expr, expr.keyword)
         return None
 
     def visitUnaryExpr(self, expr: e.Unary):
