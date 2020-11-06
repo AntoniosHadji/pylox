@@ -8,6 +8,7 @@ from environment import Environment
 from errors import LoxRuntimeError
 from global_functions import Clock, Debug
 from loxcallable import LoxCallable
+from loxclass import LoxClass
 from loxfunction import LoxFunction
 from return_class import Return
 from token_class import Token
@@ -184,6 +185,12 @@ class Interpreter(e.Visitor, s.Visitor):
 
     def visitBlockStmt(self, stmt: s.Block):
         self.executeBlock(stmt.statements, Environment(self.environment))
+
+    def visitClassStmt(self, stmt: s.Class):
+        self.environment.define(stmt.name.lexeme, None)
+        klass: LoxClass = LoxClass(stmt.name.lexeme)
+        self.environment.assign(stmt.name, klass)
+        return None
 
     def visitExpressionStmt(self, stmt: s.Expression):
         self.evaluate(stmt.expression)

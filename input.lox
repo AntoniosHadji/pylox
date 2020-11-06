@@ -107,3 +107,12 @@ var a = "global";
 // print "enter debug mode.";
 // debug();
 // print "exited debug mode.";
+
+print "ch12 Classes ==================================================";
+class DevonshireCream {
+  serveOn() {
+    return "Scones";
+  }
+}
+
+print DevonshireCream; // Prints "DevonshireCream".
