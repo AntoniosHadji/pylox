@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 class FunctionType(Enum):
     NONE = auto()
     FUNCTION = auto()
+    METHOD = auto()
 
 
 class Resolver(e.Visitor, s.Visitor):
@@ -37,6 +38,11 @@ class Resolver(e.Visitor, s.Visitor):
     def visitClassStmt(self, stmt: s.Class):
         self._declare(stmt.name)
         self._define(stmt.name)
+
+        for method in stmt.methods:
+            declaration: FunctionType = FunctionType.METHOD
+            self._resolveFunction(method, declaration)
+
         return None
 
     def visitExpressionStmt(self, stmt: s.Expression):
