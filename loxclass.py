@@ -1,6 +1,8 @@
-from typing import Any, List
+from typing import Any, Dict, List
 
+from errors import LoxRuntimeError
 from loxcallable import LoxCallable
+from token_class import Token
 
 
 class LoxClass(LoxCallable):
@@ -20,7 +22,17 @@ class LoxClass(LoxCallable):
 
 class LoxInstance:
     def __init__(self, klass: LoxClass):
-        self.klass = klass
+        self.klass: LoxClass = klass
+        self.fields: Dict[str, Any] = dict()
+
+    def get(self, name: Token) -> Any:
+        if name.lexeme in self.fields:
+            return self.fields.get(name.lexeme)
+
+        raise LoxRuntimeError(name, "Undefined property '" + name.lexeme + "'.")
+
+    def set(self, name: Token, value: Any):
+        self.fields.update({name.lexeme: value})
 
     def __repr__(self):
         return self.klass.name + " instance"

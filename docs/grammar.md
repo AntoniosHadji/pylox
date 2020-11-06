@@ -1,3 +1,10 @@
+http://craftinginterpreters.com/classes.html#set-expressions
+assignment     → ( call "." )? IDENTIFIER "=" assignment
+               | logic_or ;
+
+http://craftinginterpreters.com/classes.html#properties-on-instances
+call           → primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
+
 http://craftinginterpreters.com/classes.html#class-declarations
 declaration    → classDecl
                | funDecl

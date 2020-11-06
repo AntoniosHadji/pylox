@@ -98,6 +98,10 @@ class Resolver(e.Visitor, s.Visitor):
 
         return None
 
+    def visitGetExpr(self, expr: e.Get):
+        self._resolve(expr.object)
+        return None
+
     def visitGroupingExpr(self, expr: e.Grouping):
         self._resolve(expr.expression)
         return None
@@ -108,6 +112,11 @@ class Resolver(e.Visitor, s.Visitor):
     def visitLogicalExpr(self, expr: e.Logical):
         self._resolve(expr.left)
         self._resolve(expr.right)
+        return None
+
+    def visitSetExpr(self, expr: e.Set):
+        self._resolve(expr.value)
+        self._resolve(expr.object)
         return None
 
     def visitUnaryExpr(self, expr: e.Unary):

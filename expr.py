@@ -25,6 +25,10 @@ class Visitor(ABC):
         pass
 
     @abstractmethod
+    def visitGetExpr(self, Expr):
+        pass
+
+    @abstractmethod
     def visitGroupingExpr(self, Expr):
         pass
 
@@ -34,6 +38,10 @@ class Visitor(ABC):
 
     @abstractmethod
     def visitLogicalExpr(self, Expr):
+        pass
+
+    @abstractmethod
+    def visitSetExpr(self, Expr):
         pass
 
     @abstractmethod
@@ -74,6 +82,15 @@ class Call(Expr):
         return visitor.visitCallExpr(self)
 
 
+class Get(Expr):
+    def __init__(self, object: Expr, name: Token):
+        self.object: Expr = object
+        self.name: Token = name
+
+    def accept(self, visitor):
+        return visitor.visitGetExpr(self)
+
+
 class Grouping(Expr):
     def __init__(self, expression: Expr):
         self.expression: Expr = expression
@@ -98,6 +115,16 @@ class Logical(Expr):
 
     def accept(self, visitor):
         return visitor.visitLogicalExpr(self)
+
+
+class Set(Expr):
+    def __init__(self, object: Expr, name: Token, value: Expr):
+        self.object: Expr = object
+        self.name: Token = name
+        self.value: Expr = value
+
+    def accept(self, visitor):
+        return visitor.visitSetExpr(self)
 
 
 class Unary(Expr):

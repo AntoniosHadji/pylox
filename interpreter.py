@@ -1,6 +1,6 @@
 import logging
 import sys
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import expr as e
 import stmt as s
@@ -8,7 +8,7 @@ from environment import Environment
 from errors import LoxRuntimeError
 from global_functions import Clock, Debug
 from loxcallable import LoxCallable
-from loxclass import LoxClass
+from loxclass import LoxClass, LoxInstance
 from loxfunction import LoxFunction
 from return_class import Return
 from token_class import Token
@@ -89,6 +89,14 @@ class Interpreter(e.Visitor, s.Visitor):
 
         return function.call(self, arguments)
 
+    def visitGetExpr(self, expr: e.Get) -> object:
+        obj: object = self.evaluate(expr.object)
+        # hasattr(obj, 'get')
+        if isinstance(obj, LoxInstance):
+            return obj.get(expr.name)
+
+        raise LoxRuntimeError(expr.name, "Only instances have properties.")
+
     def visitLiteralExpr(self, expr: e.Literal):
         return expr.value
 
@@ -103,6 +111,16 @@ class Interpreter(e.Visitor, s.Visitor):
                 return left
 
         return self.evaluate(expr.right)
+
+    def visitSetExpr(self, expr: e.Set) -> Any:
+        obj: Any = self.evaluate(expr.object)
+
+        if not isinstance(obj, LoxInstance):
+            raise LoxRuntimeError(expr.name, "Only instances have fields.")
+
+        value: Any = self.evaluate(expr.value)
+        obj.set(expr.name, value)
+        return value
 
     def visitGroupingExpr(self, expr: e.Grouping) -> object:
         return self.evaluate(expr.expression)
