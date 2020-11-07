@@ -12,45 +12,45 @@ from token_class import Token
 class Stmt(ABC):
     @abstractmethod
     def accept(self, visitor):
-        pass
+        raise NotImplementedError
 
 
 class Visitor(ABC):
     @abstractmethod
     def visitBlockStmt(self, Stmt):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def visitClassStmt(self, Stmt):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def visitExpressionStmt(self, Stmt):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def visitFunctionStmt(self, Stmt):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def visitIfStmt(self, Stmt):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def visitPrintStmt(self, Stmt):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def visitReturnStmt(self, Stmt):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def visitVarStmt(self, Stmt):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def visitWhileStmt(self, Stmt):
-        pass
+        raise NotImplementedError
 
 
 class Block(Stmt):

@@ -21,7 +21,13 @@ class LoxClass(LoxCallable):
 
     def findMethod(self, name: str) -> Optional[LoxFunction]:
         # python dict.get
-        return self.methods.get(name)
+        if name in self.methods:
+            return self.methods.get(name)
+
+        if self.superclass is not None:
+            return self.superclass.findMethod(name)
+
+        return None
 
     def call(self, interpreter, arguments: List[Any]) -> Any:
         instance: LoxInstance = LoxInstance(self)

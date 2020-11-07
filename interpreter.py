@@ -122,6 +122,20 @@ class Interpreter(e.Visitor, s.Visitor):
         obj.set(expr.name, value)
         return value
 
+    def visitSuperExpr(self, expr: e.Super) -> Any:
+        distance: Optional[int] = self.locals.get(expr)
+        superclass: LoxClass = self.environment.getAt(distance, "super")
+        # Offsetting the distance by one looks up “this” in that inner environment.
+        # I admit this isn’t the most elegant code, but it works.
+        obj: LoxInstance = self.environment.getAt(distance - 1, "this")
+        method: Optional[LoxFunction] = superclass.findMethod(expr.method.lexeme)
+        if method is None:
+            raise LoxRuntimeError(
+                expr.method, f"Undefined property '{expr.method.lexeme}'."
+            )
+
+        return method.bind(obj)
+
     def visitGroupingExpr(self, expr: e.Grouping) -> object:
         return self.evaluate(expr.expression)
 
@@ -215,6 +229,10 @@ class Interpreter(e.Visitor, s.Visitor):
 
         self.environment.define(stmt.name.lexeme, None)
 
+        if stmt.superclass is not None:
+            self.environment = Environment(self.environment)
+            self.environment.define("super", superclass)
+
         methods: Dict[str, LoxFunction] = dict()
         for method in stmt.methods:
             function: LoxFunction = LoxFunction(
@@ -223,6 +241,9 @@ class Interpreter(e.Visitor, s.Visitor):
             methods.update({method.name.lexeme: function})
 
         klass: LoxClass = LoxClass(stmt.name.lexeme, superclass, methods)
+
+        if superclass is not None:
+            self.environment = self.environment.enclosing
 
         self.environment.assign(stmt.name, klass)
         return None

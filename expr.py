@@ -8,53 +8,57 @@ from token_class import Token
 class Expr(ABC):
     @abstractmethod
     def accept(self, visitor):
-        pass
+        raise NotImplementedError
 
 
 class Visitor(ABC):
     @abstractmethod
     def visitAssignExpr(self, Expr):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def visitBinaryExpr(self, Expr):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def visitCallExpr(self, Expr):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def visitGetExpr(self, Expr):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def visitGroupingExpr(self, Expr):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def visitLiteralExpr(self, Expr):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def visitLogicalExpr(self, Expr):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def visitSetExpr(self, Expr):
-        pass
+        raise NotImplementedError
+
+    @abstractmethod
+    def visitSuperExpr(self, Expr):
+        raise NotImplementedError
 
     @abstractmethod
     def visitThisExpr(self, Expr):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def visitUnaryExpr(self, Expr):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def visitVariableExpr(self, Expr):
-        pass
+        raise NotImplementedError
 
 
 class Assign(Expr):
@@ -129,6 +133,15 @@ class Set(Expr):
 
     def accept(self, visitor):
         return visitor.visitSetExpr(self)
+
+
+class Super(Expr):
+    def __init__(self, keyword: Token, method: Token):
+        self.keyword: Token = keyword
+        self.method: Token = method
+
+    def accept(self, visitor):
+        return visitor.visitSuperExpr(self)
 
 
 class This(Expr):

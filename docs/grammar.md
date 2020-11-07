@@ -1,3 +1,7 @@
+http://craftinginterpreters.com/inheritance.html#syntax
+primary        → "true" | "false" | "nil" | "this"
+               | NUMBER | STRING | IDENTIFIER | "(" expression ")"
+               | "super" "." IDENTIFIER ;
 http://craftinginterpreters.com/inheritance.html#superclasses-and-subclasses
 classDecl      → "class" IDENTIFIER ( "<" IDENTIFIER )?
                  "{" function* "}" ;

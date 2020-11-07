@@ -29,6 +29,7 @@ def main():
             "Literal  : object value",
             "Logical  : Expr left, Token operator, Expr right",
             "Set      : Expr object, Token name, Expr value",
+            "Super    : Token keyword, Token method",
             "This     : Token keyword",
             "Unary    : Token operator, Expr right",
             "Variable : Token name",
@@ -38,8 +39,6 @@ def main():
         outputDir,
         "Stmt",
         [
-            # Function,Stmt are defined within stmt.py
-            # Variable from expr
             "Block      : List[Stmt] statements",
             "Class      : Token name, Optional[Class] superclass, Dict[str,LoxFunction] methods",  # noqa E501
             "Expression : Expr expression",
@@ -76,7 +75,7 @@ def defineAst(outputDir: str, baseName: str, types: List[str]):
         f.write(f"class {baseName}(ABC):\n")
         f.write("    @abstractmethod\n")
         f.write("    def accept(self, visitor):\n")
-        f.write("        pass\n")
+        f.write("        raise NotImplementedError\n")
         f.write("\n\n")
 
         # Visitor class
@@ -86,7 +85,7 @@ def defineAst(outputDir: str, baseName: str, types: List[str]):
             className = t.split(":")[0].strip()
             # baseName added as parameter for python conversion
             f.write(f"    def visit{className}{baseName}(self, {baseName}):\n")
-            f.write("        pass\n")
+            f.write("        raise NotImplementedError\n")
         f.write("\n\n")
 
         # The AST classes.
