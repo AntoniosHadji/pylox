@@ -38,8 +38,10 @@ def main():
         outputDir,
         "Stmt",
         [
+            # Function,Stmt are defined within stmt.py
+            # Variable from expr
             "Block      : List[Stmt] statements",
-            "Class      : Token name, List[Function] methods",  # stmt.Function
+            "Class      : Token name, Optional[Class] superclass, Dict[str,LoxFunction] methods",  # noqa E501
             "Expression : Expr expression",
             "Function   : Token name, List[Token] params, List[Stmt] body",
             "If         : Expr condition, Stmt thenBranch, Stmt elseBranch",
@@ -62,6 +64,8 @@ def defineAst(outputDir: str, baseName: str, types: List[str]):
         if baseName.lower() == "stmt":
             f.write("from __future__ import annotations  # define out of order\n")
             f.write("from expr import Expr\n")
+            f.write("from typing import Optional, Dict\n")
+            f.write("from loxfunction import LoxFunction\n")
         f.write("from abc import ABC, abstractmethod\n")
         f.write("from token_class import Token\n")
         f.write("from typing import List\n")

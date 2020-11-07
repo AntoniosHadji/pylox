@@ -1,3 +1,6 @@
+http://craftinginterpreters.com/inheritance.html#superclasses-and-subclasses
+classDecl      → "class" IDENTIFIER ( "<" IDENTIFIER )?
+                 "{" function* "}" ;
 http://craftinginterpreters.com/classes.html#set-expressions
 assignment     → ( call "." )? IDENTIFIER "=" assignment
                | logic_or ;

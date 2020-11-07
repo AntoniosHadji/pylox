@@ -1,3 +1,5 @@
+from __future__ import annotations  # define out of order or recursive
+
 from typing import Any, Dict, List, Optional
 
 from errors import LoxRuntimeError
@@ -7,9 +9,12 @@ from token_class import Token
 
 
 class LoxClass(LoxCallable):
-    def __init__(self, name: str, methods: Dict[str, LoxFunction]):
+    def __init__(
+        self, name: str, superclass: Optional[LoxClass], methods: Dict[str, LoxFunction]
+    ):
         self.name = name
         self.methods = methods
+        self.superclass = superclass
 
     def __repr__(self):
         return self.name

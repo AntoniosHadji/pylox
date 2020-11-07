@@ -141,13 +141,13 @@ class Interpreter(e.Visitor, s.Visitor):
     def checkNumberOperand(self, operator: Token, operand: object):
         if isinstance(operand, float):
             return
-        raise RuntimeError(operator, "Operand must be a number.")
+        raise LoxRuntimeError(operator, "Operand must be a number.")
 
     def checkNumberOperands(self, operator: Token, left: object, right: object):
         if isinstance(left, float) and isinstance(right, float):
             return
 
-        raise RuntimeError(operator, "Operands must be numbers.")
+        raise LoxRuntimeError(operator, "Operands must be numbers.")
 
     def isTruthy(self, o: object) -> bool:
         # handle nil
@@ -205,7 +205,16 @@ class Interpreter(e.Visitor, s.Visitor):
         self.executeBlock(stmt.statements, Environment(self.environment))
 
     def visitClassStmt(self, stmt: s.Class):
+        superclass: Any = None
+        if stmt.superclass is not None:
+            superclass = self.evaluate(stmt.superclass)
+            if not (isinstance(superclass, LoxClass)):
+                raise LoxRuntimeError(
+                    stmt.superclass.name, "Superclass must be a class."
+                )
+
         self.environment.define(stmt.name.lexeme, None)
+
         methods: Dict[str, LoxFunction] = dict()
         for method in stmt.methods:
             function: LoxFunction = LoxFunction(
@@ -213,7 +222,8 @@ class Interpreter(e.Visitor, s.Visitor):
             )
             methods.update({method.name.lexeme: function})
 
-        klass: LoxClass = LoxClass(stmt.name.lexeme, methods)
+        klass: LoxClass = LoxClass(stmt.name.lexeme, superclass, methods)
+
         self.environment.assign(stmt.name, klass)
         return None
 

@@ -49,6 +49,15 @@ class Resolver(e.Visitor, s.Visitor):
         self._declare(stmt.name)
         self._define(stmt.name)
 
+        if (
+            stmt.superclass is not None
+            and stmt.name.lexeme == stmt.superclass.name.lexeme  # noqa: W503
+        ):
+            self.lox_error(stmt.superclass.name, "A class can't inherit from itself.")
+
+        if stmt.superclass is not None:
+            self._resolve(stmt.superclass)
+
         self._beginScope()
         self.scopes[len(self.scopes) - 1].update({"this": True})
 
@@ -175,6 +184,7 @@ class Resolver(e.Visitor, s.Visitor):
         return None
 
     def _resolve(self, obj: Union[s.Stmt, e.Expr]):  # type java void
+        # https://mypy.readthedocs.io/en/stable/more_types.html#function-overloading
         # overloaded private methods in Java
         obj.accept(self)
 

@@ -2,9 +2,10 @@
 from __future__ import annotations  # define out of order
 
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Dict, List, Optional
 
 from expr import Expr
+from loxfunction import LoxFunction
 from token_class import Token
 
 
@@ -61,9 +62,12 @@ class Block(Stmt):
 
 
 class Class(Stmt):
-    def __init__(self, name: Token, methods: List[Function]):
+    def __init__(
+        self, name: Token, superclass: Optional[Class], methods: Dict[str, LoxFunction]
+    ):
         self.name: Token = name
-        self.methods: List[Function] = methods
+        self.superclass: Optional[Class] = superclass
+        self.methods: Dict[str, LoxFunction] = methods
 
     def accept(self, visitor):
         return visitor.visitClassStmt(self)
