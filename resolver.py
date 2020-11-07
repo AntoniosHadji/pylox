@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 class FunctionType(Enum):
     NONE = auto()
     FUNCTION = auto()
+    INITIALIZER = auto()
     METHOD = auto()
 
 
@@ -28,7 +29,7 @@ class Resolver(e.Visitor, s.Visitor):
         self.scopes: deque = deque()
         self.current_function: FunctionType = FunctionType.NONE
         self.currentClass: ClassType = ClassType.NONE
-        self.eh = error_function
+        self.lox_error = error_function
 
     def resolve(self, statements: List[s.Stmt]):  # type java void
         for statement in statements:
@@ -53,6 +54,9 @@ class Resolver(e.Visitor, s.Visitor):
 
         for method in stmt.methods:
             declaration: FunctionType = FunctionType.METHOD
+            if method.name.lexeme == "init":
+                declaration = FunctionType.INITIALIZER
+
             self._resolveFunction(method, declaration)
 
         self._endScope()
@@ -82,8 +86,12 @@ class Resolver(e.Visitor, s.Visitor):
         return None
 
     def visitReturnStmt(self, stmt: s.Return):
-        # not null
-        if stmt.value:
+        # != null
+        if stmt.value is not None:
+            if self.current_function == FunctionType.INITIALIZER:
+                self.lox_error(
+                    stmt.keyword, "Can't return a value from an initializer."
+                )
             self._resolve(stmt.value)
         return None
 
@@ -141,7 +149,7 @@ class Resolver(e.Visitor, s.Visitor):
 
     def visitThisExpr(self, expr: e.This):
         if self.currentClass == ClassType.NONE:
-            self.eh(expr.keyword, "Can't use 'this' outside of a class.")
+            self.lox_error(expr.keyword, "Can't use 'this' outside of a class.")
             return None
 
         self._resolveLocal(expr, expr.keyword)
@@ -159,7 +167,9 @@ class Resolver(e.Visitor, s.Visitor):
             and self.scopes[len(self.scopes) - 1].get(expr.name.lexeme)  # noqa: W503
             is False
         ):
-            self.eh(expr.name, "Can't read local variable in its own initializer.")
+            self.lox_error(
+                expr.name, "Can't read local variable in its own initializer."
+            )
 
         self._resolveLocal(expr, expr.name)
         return None
@@ -197,7 +207,7 @@ class Resolver(e.Visitor, s.Visitor):
         scope: Dict[str, bool] = self.scopes[len(self.scopes) - 1]
 
         if name.lexeme in scope:
-            self.eh(name, "Already variable with this name in this scope.")
+            self.lox_error(name, "Already variable with this name in this scope.")
 
         scope.update({name.lexeme: False})
 

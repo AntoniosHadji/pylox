@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from errors import LoxRuntimeError
 from loxcallable import LoxCallable
@@ -14,16 +14,24 @@ class LoxClass(LoxCallable):
     def __repr__(self):
         return self.name
 
-    def findMethod(self, name: str) -> LoxFunction:
+    def findMethod(self, name: str) -> Optional[LoxFunction]:
         # python dict.get
         return self.methods.get(name)
 
     def call(self, interpreter, arguments: List[Any]) -> Any:
         instance: LoxInstance = LoxInstance(self)
+        initializer: Optional[LoxFunction] = self.findMethod("init")
+        if initializer is not None:
+            initializer.bind(instance).call(interpreter, arguments)
+
         return instance
 
     def arity(self) -> int:
-        return 0
+        initializer: Optional[LoxFunction] = self.findMethod("init")
+        if initializer is None:
+            return 0
+        else:
+            return initializer.arity()
 
 
 class LoxInstance:
@@ -35,7 +43,7 @@ class LoxInstance:
         if name.lexeme in self.fields:
             return self.fields.get(name.lexeme)
 
-        method: LoxFunction = self.klass.findMethod(name.lexeme)
+        method: Optional[LoxFunction] = self.klass.findMethod(name.lexeme)
         if method is not None:
             return method.bind(self)
 

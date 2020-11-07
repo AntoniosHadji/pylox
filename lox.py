@@ -6,7 +6,7 @@ import sys
 from parser import Parser
 from typing import List
 
-import ipdb
+import ipdb  # type: ignore
 
 import stmt
 from errors import LoxRuntimeError

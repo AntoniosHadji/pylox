@@ -1,6 +1,6 @@
 import time
 
-import ipdb
+import ipdb  # type: ignore
 
 from loxcallable import LoxCallable
 

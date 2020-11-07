@@ -1,4 +1,4 @@
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 import expr as e
 import stmt as s
@@ -26,7 +26,7 @@ class Parser:
     def expression(self) -> e.Expr:
         return self.assignment()
 
-    def declaration(self) -> s.Stmt:
+    def declaration(self) -> Optional[s.Stmt]:
         try:
             if self.match(TokenType.CLASS):
                 return self.classDeclaration()
@@ -125,9 +125,8 @@ class Parser:
 
     def returnStatement(self) -> s.Stmt:
         keyword: Token = self.previous()
-        value: e.Expr = None
         if not self.check(TokenType.SEMICOLON):
-            value = self.expression()
+            value: e.Expr = self.expression()
 
         self.consume(TokenType.SEMICOLON, "Expect ';' after return value.")
         return s.Return(keyword, value)
@@ -310,7 +309,7 @@ class Parser:
                 name: Token = self.consume(
                     TokenType.IDENTIFIER, "Expect property name after '.'."
                 )
-                expr: e.Get = e.Get(expr, name)
+                expr = e.Get(expr, name)
             else:
                 break
 

@@ -33,6 +33,15 @@ class ASTPrinter(Visitor):
     def visitLogicalExpr(self, expr):
         return repr(expr)
 
+    def visitGetExpr(self, expr):
+        return repr(expr)
+
+    def visitSetExpr(self, expr):
+        return repr(expr)
+
+    def visitThisExpr(self, expr):
+        return repr(expr)
+
 
 if __name__ == "__main__":
 

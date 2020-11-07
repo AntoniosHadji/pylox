@@ -8,12 +8,6 @@ class N:
         self.c = c
 
 
-n = N(1, 2, 3)
-print(n)
-d = {n: "normal_class"}
-print(d)
-
-
 @dataclass(frozen=True)
 class D:
     a: int
@@ -21,6 +15,21 @@ class D:
     c: int
 
 
+@dataclass(frozen=True, eq=False)
+class E:
+    a: int
+    b: int
+    c: int
+
+
+# normal
+n = N(1, 2, 3)
+print(n)
+d = {n: "normal_class"}
+print(d)
+
+
+# frozen
 d1 = D(1, 2, 3)
 print(d1)
 print(type(d1))
@@ -35,12 +44,7 @@ print(hash(n))
 print(hash(d1))
 print(hash(d2))
 
-
-@dataclass(frozen=True, eq=False)
-class E:
-    a: int
-    b: int
-    c: int
+# frozen + eq
 
 
 e = E(1, 2, 3)
