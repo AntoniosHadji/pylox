@@ -1,4 +1,4 @@
-.PHONY: generate debug
+.PHONY: generate debug build_tests test
 
 generate:
 	python3 tool/generate_ast.py
@@ -8,3 +8,9 @@ debug:
 
 jlox:
 	../craftinginterpreters/jlox input.program
+
+build_tests:
+	python3 tool/build_tests.py
+
+test:
+	python3 -m pytest -v

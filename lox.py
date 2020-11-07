@@ -3,7 +3,7 @@ import os
 import sys
 
 # local parser.py, also exists in Python library. (deprecated)
-from parser import Parser
+from loxparser import Parser
 from typing import List
 
 import ipdb  # type: ignore
@@ -21,7 +21,6 @@ hadRuntimeError: bool = False
 
 
 def runFile(name: str):
-    print(f"exec file: {name}")
     with open(name, "r") as f:
         lines = f.read()
 
