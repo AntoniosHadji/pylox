@@ -130,8 +130,9 @@ class Parser:
 
     def returnStatement(self) -> s.Stmt:
         keyword: Token = self.previous()
+        value: Optional[e.Expr] = None
         if not self.check(TokenType.SEMICOLON):
-            value: e.Expr = self.expression()
+            value = self.expression()
 
         self.consume(TokenType.SEMICOLON, "Expect ';' after return value.")
         return s.Return(keyword, value)
@@ -139,8 +140,9 @@ class Parser:
     def varDeclaration(self) -> s.Stmt:
         name: Token = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
 
+        initializer: Optional[e.Expr] = None
         if self.match(TokenType.EQUAL):
-            initializer: e.Expr = self.expression()
+            initializer = self.expression()
 
         self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
         return s.Var(name, initializer)
