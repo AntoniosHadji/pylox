@@ -1,7 +1,7 @@
 # http://craftinginterpreters.com/statements-and-state.html#environments
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from errors import LoxRuntimeError
 from token_class import Token

@@ -20,6 +20,7 @@ class LoxFunction(LoxCallable):
         self.closure = closure
         self.declaration = declaration
         self.is_initializer = is_initializer
+        self.name = self.declaration.name
 
     def __str__(self):
         return f"<fn {self.declaration.name.lexeme}>"

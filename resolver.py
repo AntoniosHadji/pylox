@@ -209,7 +209,8 @@ class Resolver(e.Visitor, s.Visitor):
         # overloaded private methods in Java
         obj.accept(self)
 
-    def _resolveFunction(self, function: s.Function, t: FunctionType):  # type java void
+    # type java void
+    def _resolveFunction(self, function: s.Function, t: FunctionType):
         enclosingFunction: FunctionType = self.current_function
         self.current_function = t
 

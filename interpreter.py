@@ -123,7 +123,7 @@ class Interpreter(e.Visitor, s.Visitor):
         return value
 
     def visitSuperExpr(self, expr: e.Super) -> Any:
-        distance: Optional[int] = self.locals.get(expr)
+        distance: int = self.locals.get(expr)
         superclass: LoxClass = self.environment.getAt(distance, "super")
         # Offsetting the distance by one looks up “this” in that inner environment.
         # I admit this isn’t the most elegant code, but it works.
