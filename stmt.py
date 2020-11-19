@@ -63,11 +63,11 @@ class Block(Stmt):
 
 class Class(Stmt):
     def __init__(
-        self, name: Token, superclass: Optional[Class], methods: Dict[str, LoxFunction]
+        self, name: Token, superclass: Optional[Class], methods: List[LoxFunction]
     ):
         self.name: Token = name
         self.superclass: Optional[Class] = superclass
-        self.methods: Dict[str, LoxFunction] = methods
+        self.methods: List[LoxFunction] = methods
 
     def accept(self, visitor):
         return visitor.visitClassStmt(self)

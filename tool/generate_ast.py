@@ -40,7 +40,7 @@ def main():
         "Stmt",
         [
             "Block      : List[Stmt] statements",
-            "Class      : Token name, Optional[Class] superclass, Dict[str,LoxFunction] methods",  # noqa E501
+            "Class      : Token name, Optional[Class] superclass, List[LoxFunction] methods",  # noqa E501
             "Expression : Expr expression",
             "Function   : Token name, List[Token] params, List[Stmt] body",
             "If         : Expr condition, Stmt thenBranch, Stmt elseBranch",
